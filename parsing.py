@@ -6,21 +6,30 @@ the make dict function that create a dict that contain:
 """
 
 
-def make_dic() -> dict:
+def make_dic(file: str) -> dict:
     try:
-        dict = {}
-        with open("config.txt", "r") as f:
-            a = f.read().split("\n")
-        for i in a:
-            i = i.split("=")
-            if len(i) < 2 or len(i) > 2:
-                raise IndexError("the key has more than 1 value")
-            key = i[0].strip()
-            value = i[1].strip()
-            dict[key] = value
-        return dict
+        config_dict = {}
+        with open(file, "r") as f:
+            lines = f.read().split("\n")
+
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+
+            parts = line.split("=")
+            if len(parts) != 2:
+                raise IndexError(f"Line '{line}' must have exactly one '='")
+
+            key = parts[0].strip()
+            value = parts[1].strip()
+            config_dict[key] = value
+
+        return config_dict
+
     except Exception as Error:
-        print(f"caught an error : {Error}")
+        print(f"Caught an error: {Error}")
+        exit()
 
 
 """
@@ -28,9 +37,9 @@ the second function that take that dict and check if it's valid or not
 """
 
 
-def convert_dict():
+def convert_dict(file: str):
     try:
-        dict = make_dic()
+        dict = make_dic(file)
         for key in dict:
             if key == "WIDTH" or key == "HEIGHT":
                 dict[key] = int(dict[key])
@@ -58,10 +67,8 @@ def convert_dict():
                                            " contain only:"
                                            "\nWIDTH\nHEIGHT\nENTRY\nEXIT\n"
                                            "OUTPUT_FILE\nPERFECT"))
+        return dict
 
     except Exception as Error:
         print(f"Error : {Error}")
-    print(dict)
-
-
-convert_dict()
+        exit()

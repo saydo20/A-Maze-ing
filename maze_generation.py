@@ -1,4 +1,8 @@
 import random
+from collections import deque
+# import sys
+
+# sys.setrecursionlimit(5000) 
 
 
 class MazeGenerator:
@@ -15,11 +19,11 @@ class MazeGenerator:
         cell = int(arr[row][col], 16)
         if row == 0:
             cell -= 1
-        if row == height - 1:
+        elif row == height - 1:
             cell -= 4
-        if col == 0:
+        elif col == 0:
             cell -= 8
-        if col == width - 1:
+        elif col == width - 1:
             cell -= 2
 
         arr[row][col] = cls.hexa[cell]
@@ -46,7 +50,9 @@ class MazeGenerator:
         cls.create_visited_array(height, width)
         visited = cls.create_visited_array(height, width)
         cls.generate_maze(x1, y1, arr, visited, width, height)
-        return arr
+        path = cls.bfs_pathfind(arr,
+                                dict["ENTRY"], dict["EXIT"], width, height)
+        return arr, path
 
     @classmethod
     def remove_walls(cls, arr: list, row1, col1, row2, col2):
@@ -118,3 +124,72 @@ class MazeGenerator:
                                  neighbor_row, neighbor_col)
                 cls.generate_maze(neighbor_row, neighbor_col, grid,
                                   visited, width, height)
+
+    @classmethod
+    def can_move(cls, grid, row1, col1, row2, col2):
+        cell = int(grid[row1][col1], 16)
+        if row2 == row1 - 1:
+            return (cell & 1) == 0
+        elif col2 == col1 + 1:
+            return (cell & 2) == 0
+        elif row2 == row1 + 1:
+            return (cell & 4) == 0
+        elif col2 == col1 - 1:
+            return (cell & 8) == 0
+        return False
+
+    @classmethod
+    def from_tuple_to_direction(cls, path):
+        directions = ""
+        i = 0
+        for i in range(len(path) - 1):
+            x, y = path[i]
+            x2, y2 = path[i + 1]
+            if y == y2 and x2 > x:
+                directions += "S"
+            elif y == y2 and x > x2:
+                directions += "N"
+            elif x == x2 and y2 > y:
+                directions += "E"
+            elif x == x2 and y > y2:
+                directions += "W"
+        return directions
+
+    @classmethod
+    def bfs_pathfind(cls, grid, entry, exit, width, height):
+        entry_col, entry_row = entry
+        exit_col, exit_row = exit
+        queue = deque()
+        queue.append((entry_row, entry_col))
+        visited = cls.create_visited_array(height, width)
+        visited[entry_row][entry_col] = True
+        parent = {}
+        parent[(entry_row, entry_col)] = None
+        while queue:
+            current_row, current_col = queue.popleft()
+            if current_row == exit_row and current_col == exit_col:
+                break
+            neighbors = cls.get_neighbors(
+                current_row, current_col, height, width)
+            for neighbor in neighbors:
+                neighbor_row = neighbor[0]
+                neighbor_col = neighbor[1]
+                if cls.can_move(grid, current_row, current_col,
+                                neighbor_row, neighbor_col):
+                    if not visited[neighbor_row][neighbor_col]:
+                        visited[neighbor_row][neighbor_col] = True
+                        parent[(neighbor_row, neighbor_col)] = (current_row,
+                                                                current_col)
+                        queue.append((neighbor_row, neighbor_col))
+        if (exit_row, exit_col) in parent or (exit_row == entry_row and
+                                              exit_col == entry_col):
+            path = []
+            current = (exit_row, exit_col)
+            while current is not None:
+                path.append(current)
+                current = parent.get(current)
+            path.reverse()
+            path = cls.from_tuple_to_direction(path)
+            return path
+        else:
+            return None

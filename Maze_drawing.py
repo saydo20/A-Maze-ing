@@ -1,5 +1,6 @@
 import curses
 
+
 class Draw:
     def __init__(self,height, width, file, screen):
             self.lines = []

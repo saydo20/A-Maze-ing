@@ -1,11 +1,10 @@
 import curses
-
 class Draw:
-    def __init__(self,height, width, file, screen):
-            self.lines = []
+    def __init__(self,height, width, arr, screen):
+            self.arr = []
             self.heigth = height
             self.width = width
-            self.file = file
+            self.arr = arr
             self.screen = screen
 
     def print_grid(self):
@@ -14,22 +13,29 @@ class Draw:
             j = 0
             while(j < self.width):
                 self.print_walls(int('F', 16), i, j)
+                self.screen.refresh()
+                # curses.napms(100)
                 j += 1
             i += 1
 
     def iterate(self):
-        with open(self.file, 'r') as file:
             height = 0
-            while(height < self.heigth):
-                str = file.readline()
+            for row in self.arr:
                 width = 0
-                for char in str:
-                    if(width < self.width):
-                        self.print_walls(int(char, 16), height, width)
-                        self.screen.refresh()
-                        curses.napms(100)
+                for char in row:
+                    self.print_walls(int(char.value, 16), height, width)
+                    self.screen.refresh()
+                    curses.napms(100)
                     width += 1
                 height += 1
+
+    def previous_cell(self, height, width, operation):
+        if width < 0 or height < 0:
+            return 1
+        cell = int(self.arr[height][width].value, 16)
+        if cell == 15:
+            return 0
+        return 1
 
     def print_walls(self, cell_wals, height, width):
         
@@ -38,40 +44,19 @@ class Draw:
 
         if cell_wals & (1 << 0):
             self.screen.addstr(x, y," ━━━")
-        else:
+        elif self.previous_cell(height - 1, width, "up"):
             self.screen.addstr(x, y,"    ")
         if cell_wals & (1 << 3):
             self.screen.addstr(x + 1, y,"┃")
             self.screen.addstr(x + 2, y,"┃")
-        else :
+        elif self.previous_cell(height, width - 1, "left"):
             self.screen.addstr(x + 1, y," ")
             self.screen.addstr(x + 2, y," ")
         if height == self.heigth - 1:
             if cell_wals & (1 << 2):
                 self.screen.addstr(x + 3, y," ━━━")
-            else:
-                self.screen.addstr(x, y,"    ")
         if width == self.width - 1:
             if cell_wals & (1 << 1):
                 self.screen.addstr(x + 1, y + 4,"┃")
                 self.screen.addstr(x + 2, y + 4,"┃")
-            else :
-                self.screen.addstr(x + 1, y," ")
-                self.screen.addstr(x + 2, y," ")
-
-
-
-
-def main(stdscr):
-    stdscr.clear()
-    curses.curs_set(0)
-
-    draw = Draw(5, 5, "maze.txt", stdscr)
-    draw.print_grid()
-    stdscr.refresh()
-    curses.napms(100)
-    draw.iterate()
-    stdscr.refresh()
-    stdscr.getkey()
-
-curses.wrapper(main)
+                

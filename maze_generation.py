@@ -1,8 +1,11 @@
 import random
 from collections import deque
-# import sys
 
-# sys.setrecursionlimit(5000) 
+
+class Cell:
+    def __init__(self):
+        self.value = "F"
+        self.in_pattern = False
 
 
 class MazeGenerator:
@@ -16,7 +19,7 @@ class MazeGenerator:
 
     @classmethod
     def apply_hole(cls, arr, col, row, width, height):
-        cell = int(arr[row][col], 16)
+        cell = int(arr[row][col].value, 16)
         if row == 0:
             cell -= 1
         elif row == height - 1:
@@ -26,38 +29,69 @@ class MazeGenerator:
         elif col == width - 1:
             cell -= 2
 
-        arr[row][col] = cls.hexa[cell]
+        arr[row][col].value = cls.hexa[cell]
 
     @classmethod
     def create_grid(cls, dict: dict):
         width = dict["WIDTH"]
         height = dict["HEIGHT"]
-        x1, y1 = dict["ENTRY"]
-        x2, y2 = dict["EXIT"]
+        entry_col, entry_row = dict["ENTRY"]
+        exit_col, exit_row = dict["EXIT"]
         arr = []
         i = 0
         while i < height:
             row = []
             j = 0
             while j < width:
-                row.append("F")
+                row.append(Cell())
                 j += 1
             arr.append(row)
             i += 1
-
-        cls.apply_hole(arr, x1, y1, width, height)
-        cls.apply_hole(arr, x2, y2, width, height)
-        cls.create_visited_array(height, width)
+        cls.apply_hole(arr, entry_col, entry_row, width, height)
+        cls.apply_hole(arr, exit_col, exit_row, width, height)
+        cls.pattern(arr, height,
+                    width, entry_col, entry_row, exit_col, exit_row)
         visited = cls.create_visited_array(height, width)
-        cls.generate_maze(x1, y1, arr, visited, width, height)
+        cls.generate_maze(entry_row, entry_col, arr, visited, width, height)
         path = cls.bfs_pathfind(arr,
                                 dict["ENTRY"], dict["EXIT"], width, height)
         return arr, path
 
     @classmethod
+    def pattern(cls, grid, height, width, entry_x, entry_y, exit_x, exit_y):
+        pattern_for = [
+            (0, 0), (1, 0), (2, 0), (2, 1), (2, 2),
+            (3, 2), (4, 2)
+        ]
+        pattern_two = [
+            (0, 4), (0, 5), (0, 6), (1, 6), (2, 6),
+            (2, 5), (2, 4), (3, 4), (4, 4), (4, 5), (4, 6)
+        ]
+        pattern_start_row = height // 2 - 2
+        pattern_start_col = width // 2 - 3
+        for row_offset, col_offset in pattern_for:
+            actual_row = pattern_start_row + row_offset
+            actual_col = pattern_start_col + col_offset
+            if actual_row == exit_y and actual_col == exit_x:
+                raise ValueError("Exit cannot be in the '42' pattern")
+            if actual_row == entry_y and actual_col == entry_x:
+                raise ValueError("Entry cannot be in the '42' pattern")
+            grid[actual_row][actual_col].value = 'F'
+            grid[actual_row][actual_col].in_pattern = True
+        for row_offset, col_offset in pattern_two:
+            actual_row = pattern_start_row + row_offset
+            actual_col = pattern_start_col + col_offset
+            if actual_row == exit_y and actual_col == exit_x:
+                raise ValueError("Exit cannot be in the '42' pattern")
+            if actual_row == entry_y and actual_col == entry_x:
+                raise ValueError("Entry cannot be in the '42' pattern")
+            grid[actual_row][actual_col].value = 'F'
+            grid[actual_row][actual_col].in_pattern = True
+
+    @classmethod
     def remove_walls(cls, arr: list, row1, col1, row2, col2):
-        cel1 = arr[row1][col1]
-        cel2 = arr[row2][col2]
+        cel1 = arr[row1][col1].value
+        cel2 = arr[row2][col2].value
         cel1 = int(cel1, 16)
         cel2 = int(cel2, 16)
         if row2 == row1 - 1:
@@ -72,8 +106,8 @@ class MazeGenerator:
         elif col2 == col1 + 1:
             cel1 -= 2
             cel2 -= 8
-        arr[row1][col1] = cls.hexa[cel1]
-        arr[row2][col2] = cls.hexa[cel2]
+        arr[row1][col1].value = cls.hexa[cel1]
+        arr[row2][col2].value = cls.hexa[cel2]
 
     @classmethod
     def get_neighbors(cls, row, col, height, width):
@@ -104,30 +138,34 @@ class MazeGenerator:
 
     @classmethod
     def generate_maze(
-        cls, current_row, current_col, grid, visited, width, height
+        cls, entry_row, entry_col, grid, visited, width, height
     ):
-        visited[current_row][current_col] = True
-        neighbors = cls.get_neighbors(current_row, current_col, height, width)
-
-        unvisited_neighbors = []
-        for neighbor in neighbors:
-            neighbor_row = neighbor[0]
-            neighbor_col = neighbor[1]
-            if visited[neighbor_row][neighbor_col] is False:
-                unvisited_neighbors.append(neighbor)
-        random.shuffle(unvisited_neighbors)
-        for neighbor in unvisited_neighbors:
-            neighbor_row = neighbor[0]
-            neighbor_col = neighbor[1]
-            if visited[neighbor_row][neighbor_col] is False:
-                cls.remove_walls(grid, current_row, current_col,
-                                 neighbor_row, neighbor_col)
-                cls.generate_maze(neighbor_row, neighbor_col, grid,
-                                  visited, width, height)
+        stack = []
+        stack.append((entry_row, entry_col))
+        visited[entry_row][entry_col] = True
+        while stack:
+            current_row, current_col = stack[-1]
+            neighbors = cls.get_neighbors(
+                current_row, current_col, height, width)
+            unvisited_neighbors = []
+            for neighbor in neighbors:
+                neighbor_row = neighbor[0]
+                neighbor_col = neighbor[1]
+                if not visited[neighbor_row][neighbor_col]:
+                    if not grid[neighbor_row][neighbor_col].in_pattern:
+                        unvisited_neighbors.append(neighbor)
+            if unvisited_neighbors:
+                neighbor_row, neighbor_col = random.choice(unvisited_neighbors)
+                cls.remove_walls(
+                    grid, current_row, current_col, neighbor_row, neighbor_col)
+                visited[neighbor_row][neighbor_col] = True
+                stack.append((neighbor_row, neighbor_col))
+            else:
+                stack.pop()
 
     @classmethod
     def can_move(cls, grid, row1, col1, row2, col2):
-        cell = int(grid[row1][col1], 16)
+        cell = int(grid[row1][col1].value, 16)
         if row2 == row1 - 1:
             return (cell & 1) == 0
         elif col2 == col1 + 1:

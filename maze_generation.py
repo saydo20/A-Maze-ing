@@ -37,6 +37,10 @@ class MazeGenerator:
         height = dict["HEIGHT"]
         entry_col, entry_row = dict["ENTRY"]
         exit_col, exit_row = dict["EXIT"]
+        # seed = dict["SEED"]
+        # if seed is not None:
+        #     random.seed(seed)
+        perfect = dict["PERFECT"]
         arr = []
         i = 0
         while i < height:
@@ -53,12 +57,47 @@ class MazeGenerator:
                     width, entry_col, entry_row, exit_col, exit_row)
         visited = cls.create_visited_array(height, width)
         cls.generate_maze(entry_row, entry_col, arr, visited, width, height)
+        if not perfect:
+            pass
         path = cls.bfs_pathfind(arr,
                                 dict["ENTRY"], dict["EXIT"], width, height)
         return arr, path
 
     @classmethod
-    def pattern(cls, grid, height, width, entry_x, entry_y, exit_x, exit_y):
+    def add_loops(cls, arr, height, width):
+        total_cells = width * height
+        walls_to_remove = total_cells // 10
+
+        walls = []
+
+        for row in range(height):
+            for col in range(width):
+                if arr[row][col].in_pattern:
+                    continue
+                if col < width - 1:
+                    neighbor_col = col + 1
+                    if not arr[row][neighbor_col].in_pattern:
+                        cell_value = int(arr[row][col].value, 16)
+                        if cell_value / 2 == 0:
+                            walls.append((row, col, 'E'))
+                if row < height - 1:
+                    neighbor_row = row + 1
+                    if not arr[row][neighbor_row].in_pattern:
+                        cell_value = int(arr[row][col].value, 16)
+                        if cell_value / 4 == 0:
+                            walls.append((row, col, 'S'))
+        if len(walls) > walls_to_remove:
+            walls_selected = random.sample(walls, walls_to_remove)
+        else:
+            walls_selected = walls
+        for (row, col, direction) in walls:
+            if direction == 'E':
+                cls.remove_walls(arr, row, col, row, col + 1)
+            elif direction == 'S':
+                cls.remove_walls(arr, row, col, row + 1, col)
+
+    @classmethod
+    def pattern(cls, grid, height, width, entry_col, entry_row, exit_col, exit_row):
         pattern_for = [
             (0, 0), (1, 0), (2, 0), (2, 1), (2, 2),
             (3, 2), (4, 2)
@@ -69,21 +108,25 @@ class MazeGenerator:
         ]
         pattern_start_row = height // 2 - 2
         pattern_start_col = width // 2 - 3
+        if pattern_start_row < 0 or pattern_start_row + 5 > height:
+            raise ValueError(f"Grid height ({height}) too small for pattern (needs at least 7)")
+        if pattern_start_col < 0 or pattern_start_col + 7 > width:
+            raise ValueError(f"Grid width ({width}) too small for pattern (needs at least 7)")
         for row_offset, col_offset in pattern_for:
             actual_row = pattern_start_row + row_offset
             actual_col = pattern_start_col + col_offset
-            if actual_row == exit_y and actual_col == exit_x:
+            if actual_row == exit_row and actual_col == exit_col:
                 raise ValueError("Exit cannot be in the '42' pattern")
-            if actual_row == entry_y and actual_col == entry_x:
+            if actual_row == entry_row and actual_col == entry_col:
                 raise ValueError("Entry cannot be in the '42' pattern")
             grid[actual_row][actual_col].value = 'F'
             grid[actual_row][actual_col].in_pattern = True
         for row_offset, col_offset in pattern_two:
             actual_row = pattern_start_row + row_offset
             actual_col = pattern_start_col + col_offset
-            if actual_row == exit_y and actual_col == exit_x:
+            if actual_row == exit_row and actual_col == exit_col:
                 raise ValueError("Exit cannot be in the '42' pattern")
-            if actual_row == entry_y and actual_col == entry_x:
+            if actual_row == entry_row and actual_col == entry_col:
                 raise ValueError("Entry cannot be in the '42' pattern")
             grid[actual_row][actual_col].value = 'F'
             grid[actual_row][actual_col].in_pattern = True

@@ -62,6 +62,10 @@ def convert_dict(file: str):
 
             elif key == "OUTPUT_FILE":
                 pass
+            elif key == "SEED":
+                dict[key] = int(dict[key])
+                if dict[key] < 0:
+                    raise ValueError("\nthe value must no be negative\n")
             else:
                 raise (NotImplementedError("error : the file must"
                                            " contain only:"

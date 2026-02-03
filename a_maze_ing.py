@@ -24,7 +24,10 @@ try:
             f.write("NO_PATH")
 except ValueError as e:
     print(f"Validation error: {e}")
+    exit(1)
 except FileNotFoundError as e:
     print(f"File error: {e}")
+    exit(1)
 except Exception as e:
     print(f"Unexpected error: {e}")
+    exit(1)

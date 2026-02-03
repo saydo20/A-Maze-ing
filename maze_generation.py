@@ -18,20 +18,6 @@ class MazeGenerator:
         self.west = 8
 
     @classmethod
-    def apply_hole(cls, arr, col, row, width, height):
-        cell = int(arr[row][col].value, 16)
-        if row == 0:
-            cell -= 1
-        elif row == height - 1:
-            cell -= 4
-        elif col == 0:
-            cell -= 8
-        elif col == width - 1:
-            cell -= 2
-
-        arr[row][col].value = cls.hexa[cell]
-
-    @classmethod
     def create_grid(cls, dict: dict):
         width = dict["WIDTH"]
         height = dict["HEIGHT"]
@@ -51,8 +37,6 @@ class MazeGenerator:
                 j += 1
             arr.append(row)
             i += 1
-        cls.apply_hole(arr, entry_col, entry_row, width, height)
-        cls.apply_hole(arr, exit_col, exit_row, width, height)
         cls.pattern(arr, height,
                     width, entry_col, entry_row, exit_col, exit_row)
         visited = cls.create_visited_array(height, width)

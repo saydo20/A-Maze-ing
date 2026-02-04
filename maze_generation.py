@@ -37,9 +37,9 @@ class MazeGenerator:
         height = dict["HEIGHT"]
         entry_col, entry_row = dict["ENTRY"]
         exit_col, exit_row = dict["EXIT"]
-        # seed = dict["SEED"]
-        # if seed is not None:
-        #     random.seed(seed)
+        seed = dict["SEED"]
+        if seed is not None:
+            random.seed(seed)
         perfect = dict["PERFECT"]
         arr = []
         i = 0
@@ -90,7 +90,7 @@ class MazeGenerator:
             walls_selected = random.sample(walls, walls_to_remove)
         else:
             walls_selected = walls
-        for (row, col, direction) in walls:
+        for (row, col, direction) in walls_selected:
             if direction == 'E':
                 cls.remove_walls(arr, row, col, row, col + 1)
             elif direction == 'S':

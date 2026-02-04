@@ -17,13 +17,14 @@ except Exception as Error:
 
 
 class Draw:
-    def __init__(self, infos, arr, screen):
+    def __init__(self, infos, arr, screen, path):
             self.arr = []
             self.heigth = infos["HEIGHT"]
             self.width = infos["WIDTH"]
             self.arr = arr
             self.screen = screen
             self.infos = infos
+            self.path = path
 
     def print_grid(self):
         i = 0
@@ -46,11 +47,47 @@ class Draw:
         y = width * 4
         self.screen.addstr(x + 2, y + 2, "E")
 
-    def color_patern(self, height, width):
+    def color_cell(self, height, width, path):
         x = height * 3
         y = width * 4
-        self.screen.addstr(x + 1, y + 1, "███")
-        self.screen.addstr(x + 2, y + 1, "███")
+        if path:
+            curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
+            color = curses.color_pair(1)
+        else:
+            curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_WHITE)
+            color = curses.color_pair(2)
+        self.screen.addstr(x + 1, y + 1, "███", color)
+        self.screen.addstr(x + 2, y + 1, "███", color)
+
+    def print_path(self):
+        x, y = self.infos["ENTRY"]
+        x1, y1 = self.infos["EXIT"]
+        path = self.path
+        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
+        color = curses.color_pair(1)
+        for char in path:
+
+            if char == "S":
+                x += 1
+                self.screen.addstr(x * 3, y * 4 + 1,"███", color)
+            elif char == "N":
+                x -= 1
+                self.screen.addstr(x * 3 + 3, y * 4 + 1,"███", color)
+            elif char == "E":
+                y += 1
+                self.screen.addstr(x * 3 + 1, y * 4 ,"█", color)
+                self.screen.addstr(x * 3 + 2, y * 4 ,"█", color)
+            else:
+                y -= 1
+                self.screen.addstr(x * 3 + 1, y * 4 + 4 ,"█", color)
+                self.screen.addstr(x * 3 + 2, y * 4 + 4 ,"█", color)
+            if x == x1 and y == y1:
+                break
+            self.color_cell(x, y, 1)
+            self.screen.refresh()
+            curses.napms(90)
+
+
     def iterate(self):
             height = 0
             for row in self.arr:
@@ -58,12 +95,13 @@ class Draw:
                 for char in row:
                     self.print_walls(int(char.value, 16), height, width)
                     if char.in_pattern:
-                        self.color_patern(height, width)
+                        self.color_cell(height, width, 0)
                     self.screen.refresh()
                     curses.napms(30)
                     width += 1
                 height += 1
             self.mark_entery_exit()
+            self.print_path()
 
     def previous_cell(self, height, width):
         if width < 0 or height < 0:
@@ -132,8 +170,7 @@ class Draw:
 def main(stdscr):
     stdscr.clear()
     curses.curs_set(0)
-
-    draw = Draw(dict, arr, stdscr)
+    draw = Draw(dict, arr, stdscr, path)
     draw.print_grid()
     draw.iterate()
     stdscr.refresh()

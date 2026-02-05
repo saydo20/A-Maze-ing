@@ -1,21 +1,7 @@
-<<<<<<< HEAD
-WIDTH = 15
-HEIGHT = 15
-ENTRY = 0, 0
-EXIT = 14, 14
-OUTPUT_FILE = maze.txtt
-PERFECT = False
-SEED = 1
-=======
 WIDTH = 11
 HEIGHT = 11
 ENTRY = 8, 1
 EXIT = 2, 9
 OUTPUT_FILE = maze.txt
 PERFECT = True
-<<<<<<< HEAD
 SEED = 12
-=======
-SEED = 11
->>>>>>> main
->>>>>>> bd06438451063cb280878d33daee8f7135f55b3c

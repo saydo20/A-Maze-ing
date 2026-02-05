@@ -23,8 +23,9 @@ def make_dic(file: str) -> dict:
 
             key = parts[0].strip()
             value = parts[1].strip()
+            if key in config_dict:
+                raise ValueError(f"Duplicate key '{key}' found at line {line}")
             config_dict[key] = value
-
         return config_dict
 
     except Exception as Error:
@@ -73,14 +74,21 @@ def convert_dict(file: str):
                     dict[key] = False
 
             elif key == "OUTPUT_FILE":
-                pass
+                if not dict[key]:
+                    raise ValueError("OUTPUT_FILE cannot be empty")
+                if not dict[key].endswith(".txt"):
+                    raise ValueError("OUTPUT_FILE must end with .txt")
+
             elif key == "SEED":
                 pass
             else:
-                raise (NotImplementedError("error : the file must"
+                raise (NotImplementedError("the file must"
                                            " contain only:"
                                            "\nWIDTH\nHEIGHT\nENTRY\nEXIT\n"
-                                           "OUTPUT_FILE\nPERFECT"))
+                                           "OUTPUT_FILE\nPERFEC\nSEED"))
+        if dict["ENTRY"] == dict["EXIT"]:
+                    raise ValueError("the entry and the exit cannot been in the same position")
+        
         return dict
 
     except Exception as Error:

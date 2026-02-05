@@ -21,11 +21,11 @@ class MazeGenerator:
     def create_grid(cls, dict: dict):
         width = dict["WIDTH"]
         height = dict["HEIGHT"]
-        entry_col, entry_row = dict["ENTRY"]
-        exit_col, exit_row = dict["EXIT"]
-        # seed = dict["SEED"]
-        # if seed is not None:
-        #     random.seed(seed)
+        entry_row ,entry_col  = dict["ENTRY"]
+        exit_row, exit_col = dict["EXIT"]
+        seed = dict["SEED"]
+        if seed.lower() != "none":
+            random.seed(seed)
         perfect = dict["PERFECT"]
         arr = []
         i = 0
@@ -38,11 +38,11 @@ class MazeGenerator:
             arr.append(row)
             i += 1
         cls.pattern(arr, height,
-                    width, entry_col, entry_row, exit_col, exit_row)
+                    width, entry_row, entry_col, exit_row, exit_col)
         visited = cls.create_visited_array(height, width)
         cls.generate_maze(entry_row, entry_col, arr, visited, width, height)
         if not perfect:
-            pass
+            cls.add_loops(arr, height, width)
         path = cls.bfs_pathfind(arr,
                                 dict["ENTRY"], dict["EXIT"], width, height)
         return arr, path
@@ -50,7 +50,7 @@ class MazeGenerator:
     @classmethod
     def add_loops(cls, arr, height, width):
         total_cells = width * height
-        walls_to_remove = total_cells // 10
+        walls_to_remove = total_cells // 15
 
         walls = []
 
@@ -62,26 +62,26 @@ class MazeGenerator:
                     neighbor_col = col + 1
                     if not arr[row][neighbor_col].in_pattern:
                         cell_value = int(arr[row][col].value, 16)
-                        if cell_value / 2 == 0:
+                        if cell_value & 2:
                             walls.append((row, col, 'E'))
                 if row < height - 1:
                     neighbor_row = row + 1
-                    if not arr[row][neighbor_row].in_pattern:
+                    if not arr[neighbor_row][col].in_pattern:
                         cell_value = int(arr[row][col].value, 16)
-                        if cell_value / 4 == 0:
+                        if cell_value & 4:
                             walls.append((row, col, 'S'))
         if len(walls) > walls_to_remove:
             walls_selected = random.sample(walls, walls_to_remove)
         else:
             walls_selected = walls
-        for (row, col, direction) in walls:
+        for (row, col, direction) in walls_selected:
             if direction == 'E':
                 cls.remove_walls(arr, row, col, row, col + 1)
             elif direction == 'S':
                 cls.remove_walls(arr, row, col, row + 1, col)
 
     @classmethod
-    def pattern(cls, grid, height, width, entry_col, entry_row, exit_col, exit_row):
+    def pattern(cls, grid, height, width, entry_row, entry_col, exit_row, exit_col):
         pattern_for = [
             (0, 0), (1, 0), (2, 0), (2, 1), (2, 2),
             (3, 2), (4, 2)
@@ -208,22 +208,22 @@ class MazeGenerator:
         directions = ""
         i = 0
         for i in range(len(path) - 1):
-            x, y = path[i]
-            x2, y2 = path[i + 1]
-            if y == y2 and x2 > x:
+            r1, c1 = path[i]
+            r2, c2 = path[i + 1]
+            if c1 == c2 and r2 > r1:
                 directions += "S"
-            elif y == y2 and x > x2:
+            elif c1 == c2 and r2 < r1:
                 directions += "N"
-            elif x == x2 and y2 > y:
+            elif r1 == r2 and c2 > c1:
                 directions += "E"
-            elif x == x2 and y > y2:
+            elif r1 == r2 and c2 < c1:
                 directions += "W"
         return directions
 
     @classmethod
     def bfs_pathfind(cls, grid, entry, exit, width, height):
-        entry_col, entry_row = entry
-        exit_col, exit_row = exit
+        entry_row, entry_col = entry
+        exit_row, exit_col = exit
         queue = deque()
         queue.append((entry_row, entry_col))
         visited = cls.create_visited_array(height, width)

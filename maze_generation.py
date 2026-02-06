@@ -1,5 +1,6 @@
 import random
 from collections import deque
+from typing import Optional
 
 
 class Cell:
@@ -18,15 +19,7 @@ class MazeGenerator:
         self.west = 8
 
     @classmethod
-    def create_grid(cls, dict: dict):
-        width = dict["WIDTH"]
-        height = dict["HEIGHT"]
-        entry_row ,entry_col  = dict["ENTRY"]
-        exit_row, exit_col = dict["EXIT"]
-        seed = dict["SEED"]
-        if seed.lower() != "none":
-            random.seed(seed)
-        perfect = dict["PERFECT"]
+    def create_grid(cls, dict: dict, height: int, width: int) -> list:
         arr = []
         i = 0
         while i < height:
@@ -37,18 +30,10 @@ class MazeGenerator:
                 j += 1
             arr.append(row)
             i += 1
-        cls.pattern(arr, height,
-                    width, entry_row, entry_col, exit_row, exit_col)
-        visited = cls.create_visited_array(height, width)
-        cls.generate_maze(entry_row, entry_col, arr, visited, width, height)
-        if not perfect:
-            cls.add_loops(arr, height, width)
-        path = cls.bfs_pathfind(arr,
-                                dict["ENTRY"], dict["EXIT"], width, height)
-        return arr, path
+        return arr
 
     @classmethod
-    def add_loops(cls, arr, height, width):
+    def add_loops(cls, arr: list, height: int, width: int) -> None:
         total_cells = width * height
         walls_to_remove = total_cells // 15
 
@@ -81,7 +66,7 @@ class MazeGenerator:
                 cls.remove_walls(arr, row, col, row + 1, col)
 
     @classmethod
-    def pattern(cls, grid, height, width, entry_row, entry_col, exit_row, exit_col):
+    def pattern(cls, grid: list, height: int, width: int, entry_row: int, entry_col: int, exit_row: int, exit_col: int) -> None:
         pattern_for = [
             (0, 0), (1, 0), (2, 0), (2, 1), (2, 2),
             (3, 2), (4, 2)
@@ -116,7 +101,7 @@ class MazeGenerator:
             grid[actual_row][actual_col].in_pattern = True
 
     @classmethod
-    def remove_walls(cls, arr: list, row1, col1, row2, col2):
+    def remove_walls(cls, arr: list, row1: int, col1: int, row2: int, col2: int) -> None:
         cel1 = arr[row1][col1].value
         cel2 = arr[row2][col2].value
         cel1 = int(cel1, 16)
@@ -137,7 +122,7 @@ class MazeGenerator:
         arr[row2][col2].value = cls.hexa[cel2]
 
     @classmethod
-    def get_neighbors(cls, row, col, height, width):
+    def get_neighbors(cls, row: int, col: int, height: int, width: int) -> list:
         neibors = []
         if row - 1 >= 0:
             neibors.append([row - 1, col])
@@ -150,7 +135,7 @@ class MazeGenerator:
         return neibors
 
     @classmethod
-    def create_visited_array(cls, height, width):
+    def create_visited_array(cls, height: int, width: int) -> list:
         arr = []
         j = 0
         while j < height:
@@ -165,8 +150,8 @@ class MazeGenerator:
 
     @classmethod
     def generate_maze(
-        cls, entry_row, entry_col, grid, visited, width, height
-    ):
+        cls, entry_row: int, entry_col: int, grid: list, visited: list, width: int, height: int
+    ) -> None:
         stack = []
         stack.append((entry_row, entry_col))
         visited[entry_row][entry_col] = True
@@ -191,7 +176,7 @@ class MazeGenerator:
                 stack.pop()
 
     @classmethod
-    def can_move(cls, grid, row1, col1, row2, col2):
+    def can_move(cls, grid: list, row1: int, col1: int, row2: int, col2: int) -> bool:
         cell = int(grid[row1][col1].value, 16)
         if row2 == row1 - 1:
             return (cell & 1) == 0
@@ -204,7 +189,7 @@ class MazeGenerator:
         return False
 
     @classmethod
-    def from_tuple_to_direction(cls, path):
+    def from_tuple_to_direction(cls, path: list) -> str:
         directions = ""
         i = 0
         for i in range(len(path) - 1):
@@ -221,14 +206,14 @@ class MazeGenerator:
         return directions
 
     @classmethod
-    def bfs_pathfind(cls, grid, entry, exit, width, height):
+    def bfs_pathfind(cls, grid: list, entry: list, exit: list, width: int, height: int) -> list:
         entry_row, entry_col = entry
         exit_row, exit_col = exit
-        queue = deque()
+        queue: deque[tuple[int, int]] = deque()
         queue.append((entry_row, entry_col))
         visited = cls.create_visited_array(height, width)
         visited[entry_row][entry_col] = True
-        parent = {}
+        parent: dict[tuple[int, int], Optional[tuple[int, int]]] = {}
         parent[(entry_row, entry_col)] = None
         while queue:
             current_row, current_col = queue.popleft()

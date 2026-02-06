@@ -38,7 +38,7 @@ the second function that take that dict and check if it's valid or not
 """
 
 
-def convert_dict(file: str):
+def convert_dict(file: str) -> dict:
     try:
         dict = make_dic(file)
         for key in dict:

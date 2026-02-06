@@ -101,7 +101,7 @@ class Draw:
                     width += 1
                 height += 1
             self.mark_entery_exit()
-            self.print_path()
+            # self.print_path()
 
     def previous_cell(self, height, width):
         if width < 0 or height < 0:
@@ -231,7 +231,11 @@ def main(stdscr):
         draw = Draw(dict, arr, stdscr, path)
         draw.print_grid()
         draw.iterate()
-        stdscr.getkey()
+        while True:
+            char = stdscr.getkey()
+            if char == 'q' or char == 'Q':
+                break
+
 
 curses.wrapper(main)
                 

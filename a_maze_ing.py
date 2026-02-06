@@ -3,6 +3,7 @@ import parsing
 import maze_generation
 import random
 
+
 try:
     arg = sys.argv
     if len(arg) != 2:
@@ -37,6 +38,7 @@ try:
             f.write(path)
         else:
             f.write("NO_PATH")
+    import Maze_drawing
 except ValueError as e:
     print(f"Validation error: {e}")
     exit(1)

@@ -2,18 +2,9 @@ import curses
 import parsing
 import sys
 import maze_generation
-
-try:
-    arg = sys.argv
-    if len(arg) != 2:
-        raise ValueError("the prgram must has two argument")
-    else:
-        dict = parsing.convert_dict(arg[1])
-        arr, path = maze_generation.MazeGenerator.create_grid(dict)
-except Exception as Error:
-    print(f"caught an error : {Error}")
-    exit(1)
-
+from a_maze_ing import arr
+from a_maze_ing import path
+from a_maze_ing import dict
 
 
 class Draw:
@@ -25,6 +16,7 @@ class Draw:
             self.screen = screen
             self.infos = infos
             self.path = path
+            self.show_path = False
 
     def print_grid(self):
         i = 0
@@ -50,14 +42,44 @@ class Draw:
     def color_cell(self, height, width, path):
         x = height * 3
         y = width * 4
-        if path:
+        if path and self.show_path:
             curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
             color = curses.color_pair(1)
+            self.screen.addstr(x + 1, y + 1, "███", color)
+            self.screen.addstr(x + 2, y + 1, "███", color)
+        elif self.show_path == False and path:
+            self.screen.addstr(x + 1, y + 1, "   ")
+            self.screen.addstr(x + 2, y + 1, "   ")
         else:
             curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_WHITE)
             color = curses.color_pair(2)
-        self.screen.addstr(x + 1, y + 1, "███", color)
-        self.screen.addstr(x + 2, y + 1, "███", color)
+            self.screen.addstr(x + 1, y + 1, "███", color)
+            self.screen.addstr(x + 2, y + 1, "███", color)
+
+    def clear_path(self):
+        x, y = self.infos["ENTRY"]
+        x1, y1 = self.infos["EXIT"]
+        path = self.path
+        for char in path:
+            if char == "S":
+                x += 1
+                self.screen.addstr(x * 3, y * 4 + 1,"   ")
+            elif char == "N":
+                x -= 1
+                self.screen.addstr(x * 3 + 3, y * 4 + 1,"   ")
+            elif char == "E":
+                y += 1
+                self.screen.addstr(x * 3 + 1, y * 4 ," ")
+                self.screen.addstr(x * 3 + 2, y * 4 ," ")
+            else:
+                y -= 1
+                self.screen.addstr(x * 3 + 1, y * 4 + 4 ," ")
+                self.screen.addstr(x * 3 + 2, y * 4 + 4 ," ")
+            if x == x1 and y == y1:
+                break
+            self.color_cell(x, y, 1)
+        self.screen.refresh()
+            # curses.napms(50)
 
     def print_path(self):
         x, y = self.infos["ENTRY"]
@@ -85,7 +107,7 @@ class Draw:
                 break
             self.color_cell(x, y, 1)
             self.screen.refresh()
-            curses.napms(70)
+            curses.napms(50)
 
 
     def iterate(self):
@@ -101,7 +123,6 @@ class Draw:
                     width += 1
                 height += 1
             self.mark_entery_exit()
-            # self.print_path()
 
     def previous_cell(self, height, width):
         if width < 0 or height < 0:
@@ -234,6 +255,15 @@ def main(stdscr):
             char = stdscr.getkey()
             if char == 'q' or char == 'Q':
                 break
+            if char == 's' or char == 'S':
+                draw.show_path = not draw.show_path
+                if draw.show_path:
+                    draw.print_path()
+                else:
+                    draw.clear_path()
+            if char == 'r' or char == 'R':
+                pass
+
 
 
 curses.wrapper(main)

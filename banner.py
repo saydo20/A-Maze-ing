@@ -20,7 +20,7 @@ def main(stdscr):
     ]
 
     info_lines = [
-        "By: Saad Jdia ,Younes Mouafak",
+        "By: Younes Mouafak, Saad Jdia",
         "1337 Coding School"
     ]
 

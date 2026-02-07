@@ -80,7 +80,8 @@ def convert_dict(file: str) -> dict:
                     raise ValueError("OUTPUT_FILE must end with .txt")
 
             elif key == "SEED":
-                pass
+                if not dict[key]:
+                    raise ValueError("the SEED cannot be empty")
             else:
                 raise (NotImplementedError("the file must"
                                            " contain only:"

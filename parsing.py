@@ -54,14 +54,14 @@ def convert_dict(file: str) -> dict:
                     raise ValueError(f"the {key} must has two coordinations")
                 dict[key][0] = int(dict[key][0])
                 dict[key][1] = int(dict[key][1])
-                # if dict[key][0] < 0:
-                #     raise ValueError("the entry cannot be nugative")
-                # if dict[key][0] > dict["WIDTH"] or dict[key][0] >= dict["HEIGHT"]:
-                #     raise ValueError("the entry has to be in the maze")
-                # if dict[key][1] < 0:
-                #     raise ValueError("the exit cannot be nugative")
-                # if dict[key][1] > dict["WIDTH"] or dict[key][1] >= dict["HEIGHT"]:
-                #     raise ValueError("the exit has to be in the maze")
+                if dict[key][0] < 0:
+                    raise ValueError("the entry and the exit cannot be nugative")
+                if dict[key][0] >= dict["WIDTH"]:
+                    raise ValueError("the entry and the exit has to be in the maze")
+                if dict[key][1] < 0:
+                    raise ValueError("the entry and the exit cannot be nugative")
+                if dict[key][1] >= dict["HEIGHT"]:
+                    raise ValueError("the entry and the exit has to be in the maze")
 
             elif key == "PERFECT":
                 if dict[key].lower() != "true":
@@ -80,7 +80,8 @@ def convert_dict(file: str) -> dict:
                     raise ValueError("OUTPUT_FILE must end with .txt")
 
             elif key == "SEED":
-                pass
+                if not dict[key]:
+                    raise ValueError("the SEED cannot be empty")
             else:
                 raise (NotImplementedError("the file must"
                                            " contain only:"

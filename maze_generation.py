@@ -70,10 +70,10 @@ class MazeGenerator:
         ]
         pattern_start_row = height // 2 - 2
         pattern_start_col = width // 2 - 3
-        if pattern_start_row < 0 or pattern_start_row + 5 > height:
-            raise ValueError(f"Grid height ({height}) too small for pattern (needs at least 7)")
-        if pattern_start_col < 0 or pattern_start_col + 7 > width:
-            raise ValueError(f"Grid width ({width}) too small for pattern (needs at least 7)")
+        if pattern_start_row < 0 or pattern_start_row + 6 > height:
+            raise ValueError(f"Grid height ({height}) too small for pattern (needs at least 8)")
+        if pattern_start_col < 0 or pattern_start_col + 8 > width:
+            raise ValueError(f"Grid width ({width}) too small for pattern (needs at least 8)")
         for row_offset, col_offset in pattern_for:
             actual_row = pattern_start_row + row_offset
             actual_col = pattern_start_col + col_offset

@@ -25,7 +25,7 @@ def make_dic(file: str) -> dict:
             value = parts[1].strip()
             if key in config_dict:
                 raise ValueError(f"Duplicate key '{key}' found at line {line}")
-            config_dict[key] = value
+            config_dict[key.upper()] = value
         return config_dict
 
     except Exception as Error:
@@ -45,7 +45,7 @@ def convert_dict(file: str) -> dict:
             if key == "WIDTH" or key == "HEIGHT":
                 dict[key] = int(dict[key])
                 if dict[key] < 0:
-                    raise ValueError("\nthe value must no be negative\n")
+                    raise ValueError("\nthe value must be positive\n")
 
             elif key == "ENTRY" or key == "EXIT":
                 dict[key] = dict[key].split(',')
@@ -55,13 +55,13 @@ def convert_dict(file: str) -> dict:
                 dict[key][0] = int(dict[key][0])
                 dict[key][1] = int(dict[key][1])
                 if dict[key][0] < 0:
-                    raise ValueError("the entry cannot be nugative")
-                if dict[key][0] > dict["WIDTH"] or dict[key][0] >= dict["HEIGHT"]:
-                    raise ValueError("the entry has to be in the maze")
+                    raise ValueError("the entry and the exit cannot be nugative")
+                if dict[key][0] >= dict["WIDTH"]:
+                    raise ValueError("the entry and the exit has to be in the maze")
                 if dict[key][1] < 0:
-                    raise ValueError("the exit cannot be nugative")
-                if dict[key][1] > dict["WIDTH"] or dict[key][1] >= dict["HEIGHT"]:
-                    raise ValueError("the exit has to be in the maze")
+                    raise ValueError("the entry and the exit cannot be nugative")
+                if dict[key][1] >= dict["HEIGHT"]:
+                    raise ValueError("the entry and the exit has to be in the maze")
 
             elif key == "PERFECT":
                 if dict[key].lower() != "true":
@@ -89,7 +89,6 @@ def convert_dict(file: str) -> dict:
                                            "OUTPUT_FILE\nPERFEC\nSEED"))
         if dict["ENTRY"] == dict["EXIT"]:
                     raise ValueError("the entry and the exit cannot been in the same position")
-        
         return dict
 
     except Exception as Error:

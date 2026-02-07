@@ -111,7 +111,7 @@ class Draw:
             curses.napms(50)
 
 
-    def iterate(self):
+    def iterate(self, animate):
             height = 0
             for row in self.arr:
                 width = 0
@@ -120,9 +120,13 @@ class Draw:
                     if char.in_pattern:
                         self.color_cell(height, width, 0)
                     width += 1
+                    if animate:
+                        self.screen.refresh()
+                        curses.napms(10)
                 height += 1
-            self.screen.refresh()
-            curses.napms(10)
+            if not animate:
+                self.screen.refresh()
+                curses.napms(10)
             self.mark_entery_exit()
 
     def previous_cell(self, height, width):
@@ -251,7 +255,7 @@ def main(stdscr):
         curses.curs_set(0)
         draw = Draw(dict, arr, stdscr, path)
         draw.print_grid()
-        draw.iterate()
+        draw.iterate(1)
         while True:
             char = stdscr.getkey()
             if char == 'q' or char == 'Q':
@@ -267,7 +271,7 @@ def main(stdscr):
                 arr, dict, path = generate()
                 draw = Draw(dict, arr, stdscr, path)
                 # draw.print_grid()
-                draw.iterate()
+                draw.iterate(0)
 
 curses.wrapper(main)
                 

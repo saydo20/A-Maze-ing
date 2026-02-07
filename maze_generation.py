@@ -12,11 +12,7 @@ class Cell:
 class MazeGenerator:
     hexa = "0123456789ABCDEF"
     @classmethod
-<<<<<<< HEAD
-    def create_grid(cls, height: int, width: int) -> list:
-=======
     def create_grid(cls, dict: dict, height: int, width: int) -> list:
->>>>>>> younes
         arr = []
         i = 0
         while i < height:
@@ -204,8 +200,8 @@ class MazeGenerator:
 
     @classmethod
     def bfs_pathfind(cls, grid: list, entry: list, exit: list, width: int, height: int) -> list:
-        entry_row, entry_col = entry
-        exit_row, exit_col = exit
+        entry_col, entry_row = entry
+        exit_col, exit_row = exit
         queue: deque[tuple[int, int]] = deque()
         queue.append((entry_row, entry_col))
         visited = cls.create_visited_array(height, width)

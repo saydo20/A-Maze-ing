@@ -2,9 +2,10 @@ import curses
 import parsing
 import sys
 import maze_generation
-from a_maze_ing import arr
-from a_maze_ing import path
-from a_maze_ing import dict
+# from a_maze_ing import arr
+# from a_maze_ing import path
+# from a_maze_ing import dict
+from a_maze_ing import generate
 
 
 class Draw:
@@ -30,11 +31,11 @@ class Draw:
             i += 1
 
     def mark_entery_exit(self):
-        height, width = self.infos["ENTRY"]
+        width, height = self.infos["ENTRY"]
         x = height * 3
         y = width * 4
         self.screen.addstr(x + 2, y + 2, "S")
-        height, width = self.infos["EXIT"]
+        width, height = self.infos["EXIT"]
         x = height * 3
         y = width * 4
         self.screen.addstr(x + 2, y + 2, "E")
@@ -118,10 +119,10 @@ class Draw:
                     self.print_walls(int(char.value, 16), height, width)
                     if char.in_pattern:
                         self.color_cell(height, width, 0)
-                    self.screen.refresh()
-                    curses.napms(10)
                     width += 1
                 height += 1
+            self.screen.refresh()
+            curses.napms(10)
             self.mark_entery_exit()
 
     def previous_cell(self, height, width):
@@ -245,7 +246,7 @@ class Draw:
 
 
 def main(stdscr):
-
+        arr, dict, path = generate()
         stdscr.clear()
         curses.curs_set(0)
         draw = Draw(dict, arr, stdscr, path)
@@ -262,9 +263,11 @@ def main(stdscr):
                 else:
                     draw.clear_path()
             if char == 'r' or char == 'R':
-                pass
-
-
+                stdscr.clear()
+                arr, dict, path = generate()
+                draw = Draw(dict, arr, stdscr, path)
+                # draw.print_grid()
+                draw.iterate()
 
 curses.wrapper(main)
                 

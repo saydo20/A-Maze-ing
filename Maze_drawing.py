@@ -78,8 +78,8 @@ class Draw:
             if x == x1 and y == y1:
                 break
             self.color_cell(x, y, 1)
-        self.screen.refresh()
-            # curses.napms(50)
+            self.screen.refresh()
+            curses.napms(50)
 
     def print_path(self):
         x, y = self.infos["ENTRY"]

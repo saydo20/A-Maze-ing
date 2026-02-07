@@ -4,22 +4,15 @@ from typing import Optional
 
 
 class Cell:
-    def __init__(self):
+    def __init__(self) -> None:
         self.value = "F"
         self.in_pattern = False
 
 
 class MazeGenerator:
     hexa = "0123456789ABCDEF"
-
-    def __init__(self):
-        self.north = 1
-        self.east = 2
-        self.south = 4
-        self.west = 8
-
     @classmethod
-    def create_grid(cls, dict: dict, height: int, width: int) -> list:
+    def create_grid(cls, height: int, width: int) -> list:
         arr = []
         i = 0
         while i < height:
@@ -206,14 +199,14 @@ class MazeGenerator:
         return directions
 
     @classmethod
-    def bfs_pathfind(cls, grid: list, entry: list, exit: list, width: int, height: int) -> list:
-        entry_row, entry_col = entry
-        exit_row, exit_col = exit
+    def bfs_pathfind(cls, grid: list, entry: list, exit: list, width: int, height: int) -> str | None:
+        entry_col, entry_row = entry
+        exit_col, exit_row = exit
         queue: deque[tuple[int, int]] = deque()
         queue.append((entry_row, entry_col))
         visited = cls.create_visited_array(height, width)
         visited[entry_row][entry_col] = True
-        parent: dict[tuple[int, int], Optional[tuple[int, int]]] = {}
+        parent: dict[tuple[int, int], Optional[tuple[int, int]] | None] = {}
         parent[(entry_row, entry_col)] = None
         while queue:
             current_row, current_col = queue.popleft()
@@ -234,12 +227,12 @@ class MazeGenerator:
         if (exit_row, exit_col) in parent or (exit_row == entry_row and
                                               exit_col == entry_col):
             path = []
-            current = (exit_row, exit_col)
+            current: Optional[tuple[int, int]] = (exit_row, exit_col)
             while current is not None:
                 path.append(current)
                 current = parent.get(current)
             path.reverse()
-            path = cls.from_tuple_to_direction(path)
-            return path
+            directions = cls.from_tuple_to_direction(path)
+            return directions
         else:
             return None

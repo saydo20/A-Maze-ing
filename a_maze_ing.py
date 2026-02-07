@@ -37,6 +37,7 @@ try:
             f.write(path)
         else:
             f.write("NO_PATH")
+        import banner
         import Maze_drawing
 except ValueError as e:
     print(f"Validation error: {e}")

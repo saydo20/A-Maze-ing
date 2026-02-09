@@ -168,7 +168,7 @@ class MazeGenerator:
 
             else:
                 stack.pop()
-            yield (current_row, current_col), (neighbor_row, neighbor_col)
+            yield (current_row, current_col)
 
     @classmethod
     def can_move(cls, grid: list, row1: int, col1: int, row2: int, col2: int) -> bool:

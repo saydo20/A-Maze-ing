@@ -14,11 +14,10 @@ class Draw:
 
     def print_grid(self):
         i = 0
-        grid = [['F' for _ in range(self.width)] for _ in range(self.heigth)]
-        for row in grid:
+        for row in self.arr:
             j = 0
             for cell in row:
-                self.print_walls(int(cell, 16), i, j)
+                self.print_walls(int(cell.value, 16), i, j)
                 self.screen.refresh()
                 j += 1
             i += 1

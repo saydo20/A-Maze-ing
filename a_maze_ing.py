@@ -69,16 +69,16 @@ def animation(stdscr, draw, arr, config, visited):
     width = config["WIDTH"]
     entry_row, entry_col = config["ENTRY"]
 
-    for (r1, c1), (r2, c2) in maze_generation.MazeGenerator.generate_maze(
+    for (r1, c1) in maze_generation.MazeGenerator.generate_maze(
         entry_row, entry_col, arr, visited, width, height
     ):
         draw.print_walls(int(arr[r1][c1].value, 16), r1, c1)
-        draw.print_walls(int(arr[r2][c2].value, 16), r2, c2)
+        # draw.print_walls(int(arr[r2][c2].value, 16), r2, c2)
 
         if arr[r1][c1].in_pattern:
             draw.color_cell(r1, c1, 1)
-        if arr[r2][c2].in_pattern:
-            draw.color_cell(r2, c2, 1)
+        # if arr[r2][c2].in_pattern:
+        #     draw.color_cell(r2, c2, 1)
 
         stdscr.refresh()
         curses.napms(20)
@@ -135,4 +135,7 @@ if __name__ == "__main__":
                 draw.mark_entery_exit()
                 draw.iterate()
 
+try :
     curses.wrapper(main)
+except Exception as e:
+    print(f"Unexpected error: {e}")

@@ -1,9 +1,9 @@
 import sys
-import parsing
-import maze_generation
+from parsing import parsing
+from maze_generation import maze_generation
 import random
 import curses
-from Maze_drawing import Draw
+from maze_drawing.Maze_drawing import Draw
 
 
 def prepare():
@@ -19,8 +19,8 @@ def prepare():
 
     width = config["WIDTH"]
     height = config["HEIGHT"]
-    entry_row, entry_col = config["ENTRY"]
-    exit_row, exit_col = config["EXIT"]
+    entry_col, entry_row = config["ENTRY"]
+    exit_col, exit_row = config["EXIT"]
 
     seed = config["SEED"]
     if seed.lower() != "none":
@@ -45,19 +45,23 @@ def finalize_and_save(arr, config):
         maze_generation.MazeGenerator.add_loops(arr, height, width)
 
     path = maze_generation.MazeGenerator.bfs_pathfind(arr, config["ENTRY"], config["EXIT"], width, height)
-
     with open(config["OUTPUT_FILE"], "w") as f:
         for row in arr:
             for cell in row:
                 f.write(str(cell.value))
             f.write("\n")
         f.write("\n")
-        f.write(str(tuple(config["ENTRY"])))
+        entry = tuple(config["ENTRY"])
+        f.write(str(entry[0]))
+        f.write(",")
+        f.write(str(entry[1]))
         f.write("\n")
-        f.write(str(tuple(config["EXIT"])))
+        exit = tuple(config["EXIT"])
+        f.write(str(exit[0]))
+        f.write(",")
+        f.write(str(exit[1]))
         f.write("\n")
         f.write(path if path else "NO_PATH")
-
     return path
 
 
@@ -67,7 +71,7 @@ def animation(stdscr, draw, arr, config, visited):
     """
     height = config["HEIGHT"]
     width = config["WIDTH"]
-    entry_row, entry_col = config["ENTRY"]
+    entry_col, entry_row = config["ENTRY"]
 
     for (r1, c1) in maze_generation.MazeGenerator.generate_maze(
         entry_row, entry_col, arr, visited, width, height
@@ -78,7 +82,7 @@ def animation(stdscr, draw, arr, config, visited):
 
 
 if __name__ == "__main__":
-    import banner
+    from maze_drawing import banner
 
 def main(stdscr):
     stdscr.clear()

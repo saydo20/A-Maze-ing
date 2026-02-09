@@ -25,13 +25,13 @@ class Draw:
             i += 1
 
     def mark_entery_exit(self):
-        width, height = self.infos["ENTRY"]
-        x = height * 3
-        y = width * 4
+        entry_col, entry_row = self.infos["ENTRY"]
+        x = entry_row * 3
+        y = entry_col * 4
         self.screen.addstr(x + 2, y + 2, "S")
-        width, height = self.infos["EXIT"]
-        x = height * 3
-        y = width * 4
+        exit_col, exit_row = self.infos["EXIT"]
+        x = exit_row * 3
+        y = exit_col * 4
         self.screen.addstr(x + 2, y + 2, "E")
 
     def color_cell(self, height, width, path):
@@ -52,55 +52,54 @@ class Draw:
             self.screen.addstr(x + 2, y + 1, "███", color)
 
     def clear_path(self):
-        y, x = self.infos["ENTRY"]
-        y1, x1 = self.infos["EXIT"]
+        col, row = self.infos["ENTRY"]
+        col1, row1 = self.infos["EXIT"]
         path = self.path
         for char in path:
             if char == "S":
-                x += 1
-                self.screen.addstr(x * 3, y * 4 + 1, "   ")
+                row += 1
+                self.screen.addstr(row * 3, col * 4 + 1, "   ")
             elif char == "N":
-                x -= 1
-                self.screen.addstr(x * 3 + 3, y * 4 + 1, "   ")
+                row -= 1
+                self.screen.addstr(row * 3 + 3, col * 4 + 1, "   ")
             elif char == "E":
-                y += 1
-                self.screen.addstr(x * 3 + 1, y * 4, " ")
-                self.screen.addstr(x * 3 + 2, y * 4, " ")
+                col += 1
+                self.screen.addstr(row * 3 + 1, col * 4, " ")
+                self.screen.addstr(row * 3 + 2, col * 4, " ")
             else:
-                y -= 1
-                self.screen.addstr(x * 3 + 1, y * 4 + 4, " ")
-                self.screen.addstr(x * 3 + 2, y * 4 + 4, " ")
-            if x == x1 and y == y1:
+                col -= 1
+                self.screen.addstr(row * 3 + 1, col * 4 + 4, " ")
+                self.screen.addstr(row * 3 + 2, col * 4 + 4, " ")
+            if row == row1 and col == col1:
                 break
-            self.color_cell(x, y, 1)
+            self.color_cell(row, col, 1)
             self.screen.refresh()
             curses.napms(50)
 
     def print_path(self):
-        y, x = self.infos["ENTRY"]
-        y1, x1 = self.infos["EXIT"]
+        col, row = self.infos["ENTRY"]
+        col1, row1 = self.infos["EXIT"]
         path = self.path
         curses.init_pair(6, curses.COLOR_RED, curses.COLOR_WHITE)
         color = curses.color_pair(6)
         for char in path:
-
             if char == "S":
-                x += 1
-                self.screen.addstr(x * 3, y * 4 + 1, "███", color)
+                row += 1
+                self.screen.addstr(row * 3, col * 4 + 1, "███", color)
             elif char == "N":
-                x -= 1
-                self.screen.addstr(x * 3 + 3, y * 4 + 1, "███", color)
+                row -= 1
+                self.screen.addstr(row * 3 + 3, col * 4 + 1, "███", color)
             elif char == "E":
-                y += 1
-                self.screen.addstr(x * 3 + 1, y * 4, "█", color)
-                self.screen.addstr(x * 3 + 2, y * 4, "█", color)
+                col += 1
+                self.screen.addstr(row * 3 + 1, col * 4, "█", color)
+                self.screen.addstr(row * 3 + 2, col * 4, "█", color)
             else:
-                y -= 1
-                self.screen.addstr(x * 3 + 1, y * 4 + 4, "█", color)
-                self.screen.addstr(x * 3 + 2, y * 4 + 4, "█", color)
-            if x == x1 and y == y1:
+                col -= 1
+                self.screen.addstr(row * 3 + 1, col * 4 + 4, "█", color)
+                self.screen.addstr(row * 3 + 2, col * 4 + 4, "█", color)
+            if row == row1 and col == col1:
                 break
-            self.color_cell(x, y, 1)
+            self.color_cell(row, col, 1)
             self.screen.refresh()
             curses.napms(50)
 

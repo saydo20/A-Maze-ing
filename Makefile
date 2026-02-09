@@ -1,12 +1,13 @@
 PYTHON := python3
 
-MAIN_SCRIPT := a_maze_ing.py
+MAIN_SCRIPT := mazegen/a_maze_ing.py
 
 CONFIG_FILE := config.txt
 
 install:
 	@echo "Installing dependencies..."
 	pip install flake8
+	pip install build
 run:
 	@echo "Running the project..."
 	$(PYTHON) $(MAIN_SCRIPT) $(CONFIG_FILE)
@@ -16,7 +17,12 @@ debug:
 
 clean:
 	@echo "Cleaning temporary files..."
-	rm -rf __pycache__ .mypy_cache *.pyc
+	rm -rf venv
+	rm -rf dist
+	rm -rf build
+	rm -rf *.egg-info
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
 
 lint:
 	@echo "Running linting..."

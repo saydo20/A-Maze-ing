@@ -1,4 +1,5 @@
 import curses
+import random
 
 
 class Draw:
@@ -11,6 +12,7 @@ class Draw:
         self.infos = infos
         self.path = path
         self.show_path = False
+        self.color = curses.color_pair(0)
 
     def print_grid(self):
         i = 0
@@ -36,16 +38,16 @@ class Draw:
         x = height * 3
         y = width * 4
         if path and self.show_path:
-            curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
-            color = curses.color_pair(1)
+            curses.init_pair(6, curses.COLOR_RED, curses.COLOR_WHITE)
+            color = curses.color_pair(6)
             self.screen.addstr(x + 1, y + 1, "███", color)
             self.screen.addstr(x + 2, y + 1, "███", color)
         elif self.show_path is False and path:
             self.screen.addstr(x + 1, y + 1, "   ")
             self.screen.addstr(x + 2, y + 1, "   ")
         else:
-            curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_WHITE)
-            color = curses.color_pair(2)
+            curses.init_pair(7, curses.COLOR_BLUE, curses.COLOR_WHITE)
+            color = curses.color_pair(7)
             self.screen.addstr(x + 1, y + 1, "███", color)
             self.screen.addstr(x + 2, y + 1, "███", color)
 
@@ -78,8 +80,8 @@ class Draw:
         y, x = self.infos["ENTRY"]
         y1, x1 = self.infos["EXIT"]
         path = self.path
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
-        color = curses.color_pair(1)
+        curses.init_pair(6, curses.COLOR_RED, curses.COLOR_WHITE)
+        color = curses.color_pair(6)
         for char in path:
 
             if char == "S":
@@ -189,52 +191,52 @@ class Draw:
         x = height * 3
         y = width * 4
         cell = self.check_walls(height, width)
-        self.screen.addstr(x, y, cell)
+        self.screen.addstr(x, y, cell, self.color)
 
         if width == self.width - 1:
             if height == 0:
-                self.screen.addstr(x, y + 4, "╗")
+                self.screen.addstr(x, y + 4, "╗", self.color)
             elif height <= self.heigth - 1:
                 if self.borders_check(height, width, 0):
-                    self.screen.addstr(x, y + 4, "╣")
+                    self.screen.addstr(x, y + 4, "╣", self.color)
                 else:
-                    self.screen.addstr(x, y + 4, "║")
+                    self.screen.addstr(x, y + 4, "║", self.color)
 
         if height == self.heigth - 1:
             if width == 0:
-                self.screen.addstr(x + 3, y, "╚")
+                self.screen.addstr(x + 3, y, "╚", self.color)
             elif width == self.width - 1:
-                self.screen.addstr(x + 3, y + 4, "╝")
+                self.screen.addstr(x + 3, y + 4, "╝", self.color)
                 if self.borders_check(height, width, 1):
-                    self.screen.addstr(x + 3, y, "╩")
+                    self.screen.addstr(x + 3, y, "╩", self.color)
                 else:
-                    self.screen.addstr(x + 3, y, "═")
+                    self.screen.addstr(x + 3, y, "═", self.color)
             elif self.borders_check(height, width, 1):
-                self.screen.addstr(x + 3, y, "╩")
+                self.screen.addstr(x + 3, y, "╩", self.color)
             else:
-                self.screen.addstr(x + 3, y, "═")
+                self.screen.addstr(x + 3, y, "═", self.color)
 
     def print_walls(self, cell_wals, height, width):
         x = height * 3
         y = width * 4
         self.print_corners(height, width)
         if cell_wals & (1 << 0):
-            self.screen.addstr(x, y + 1, "═══")
+            self.screen.addstr(x, y + 1, "═══", self.color)
         elif self.previous_cell(height - 1, width):
-            self.screen.addstr(x, y + 1, "   ")
+            self.screen.addstr(x, y + 1, "   ", self.color)
         if cell_wals & (1 << 3):
-            self.screen.addstr(x + 1, y, "║")
-            self.screen.addstr(x + 2, y, "║")
+            self.screen.addstr(x + 1, y, "║", self.color)
+            self.screen.addstr(x + 2, y, "║", self.color)
         elif self.previous_cell(height, width - 1):
-            self.screen.addstr(x + 1, y, " ")
-            self.screen.addstr(x + 2, y, " ")
+            self.screen.addstr(x + 1, y, " ", self.color)
+            self.screen.addstr(x + 2, y, " ", self.color)
         if height == self.heigth - 1:
             if cell_wals & (1 << 2):
-                self.screen.addstr(x + 3, y + 1, "═══")
+                self.screen.addstr(x + 3, y + 1, "═══", self.color)
         if width == self.width - 1:
             if cell_wals & (1 << 1):
-                self.screen.addstr(x + 1, y + 4, "║")
-                self.screen.addstr(x + 2, y + 4, "║")
+                self.screen.addstr(x + 1, y + 4, "║", self.color)
+                self.screen.addstr(x + 2, y + 4, "║", self.color)
 
     def display_menu(self):
         x = self.heigth * 3 + 2
@@ -242,6 +244,17 @@ class Draw:
         self.screen.addstr(x, y, "=== A-Maze-ing ===", curses.A_BOLD)
         self.screen.addstr(x + 1, y, "(S) - Show/Hide path", curses.A_BOLD)
         self.screen.addstr(x + 2, y, "(R) - Regenerate", curses.A_BOLD)
-        self.screen.addstr(x + 3, y, "(Q) - Quit", curses.A_BOLD)
-        self.screen.addstr(x + 4, y, "Choice? :", curses.A_BOLD)
+        self.screen.addstr(x + 3, y, "(C) - Change Colors", curses.A_BOLD)
+        self.screen.addstr(x + 4, y, "(Q) - Quit", curses.A_BOLD)
+        self.screen.addstr(x + 5, y, "Choice? :", curses.A_BOLD)
         self.screen.refresh()
+
+    def allow_colors(self):
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        random_pair = random.choice([0, 1, 2, 3, 4, 5])
+        self.color = curses.color_pair(random_pair)

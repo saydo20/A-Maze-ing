@@ -73,67 +73,65 @@ def animation(stdscr, draw, arr, config, visited):
         entry_row, entry_col, arr, visited, width, height
     ):
         draw.print_walls(int(arr[r1][c1].value, 16), r1, c1)
-        # draw.print_walls(int(arr[r2][c2].value, 16), r2, c2)
-
-        if arr[r1][c1].in_pattern:
-            draw.color_cell(r1, c1, 1)
-        # if arr[r2][c2].in_pattern:
-        #     draw.color_cell(r2, c2, 1)
-
         stdscr.refresh()
-        curses.napms(20)
+        curses.napms(10)
 
 
 if __name__ == "__main__":
     import banner
 
-    def main(stdscr):
-        stdscr.clear()
-        curses.curs_set(0)
+def main(stdscr):
+    stdscr.clear()
+    curses.curs_set(0)
 
-        # initial build (no maze generation yet)
-        arr, config, visited = prepare()
+    # initial build (no maze generation yet)
+    arr, config, visited = prepare()
 
-        # draw empty frame/grid
-        draw = Draw(config, arr, stdscr, path=None)
-        draw.print_grid()
+    # draw empty frame/grid
+    draw = Draw(config, arr, stdscr, path=None)
+    draw.print_grid()
 
-        animation(stdscr, draw, arr, config, visited)
+    animation(stdscr, draw, arr, config, visited)
 
-        # after carving, compute path + save file
-        draw.path = finalize_and_save(arr, config)
+    # after carving, compute path + save file
+    draw.path = finalize_and_save(arr, config)
 
-        # final touches
-        draw.mark_entery_exit()
-        draw.iterate()
+    # final touches
+    draw.mark_entery_exit()
+    draw.iterate()
 
-        while True:
+    while True:
+        draw.display_menu()
+        char = stdscr.getkey()
+
+        if char in ("q", "Q"):
+            break
+
+        if char in ("s", "S"):
+            draw.show_path = not draw.show_path
+            if draw.show_path:
+                draw.print_path()
+            else:
+                draw.clear_path()
+
+        if char in ("r", "R"):
+            stdscr.clear()
             draw.display_menu()
-            char = stdscr.getkey()
 
-            if char in ("q", "Q"):
-                break
+            arr, config, visited = prepare()
+            draw = Draw(config, arr, stdscr, path=None)
+            draw.print_grid()
 
-            if char in ("s", "S"):
-                draw.show_path = not draw.show_path
-                if draw.show_path:
-                    draw.print_path()
-                else:
-                    draw.clear_path()
+            animation(stdscr, draw, arr, config, visited)
 
-            if char in ("r", "R"):
-                stdscr.clear()
-                draw.display_menu()
-
-                arr, config, visited = prepare()
-                draw = Draw(config, arr, stdscr, path=None)
-                draw.print_grid()
-
-                animation(stdscr, draw, arr, config, visited)
-
-                draw.path = finalize_and_save(arr, config)
-                draw.mark_entery_exit()
-                draw.iterate()
+            draw.path = finalize_and_save(arr, config)
+            draw.mark_entery_exit()
+            draw.iterate()
+        if char in ("c", "C"):
+            stdscr.clear()
+            draw.display_menu()
+            draw.allow_colors()
+            draw.iterate()
 
 try :
     curses.wrapper(main)

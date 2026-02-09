@@ -116,6 +116,8 @@ class Draw:
             self.screen.refresh()
             curses.napms(10)
         self.mark_entery_exit()
+        if self.show_path:
+            self.show_path = not self.show_path
 
     def previous_cell(self, height, width):
         if width < 0 or height < 0:
@@ -254,6 +256,74 @@ class Draw:
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-        random_pair = random.choice([0, 1, 2, 3, 4, 5])
+        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK) 
+        random_pair = random.choice(range(6))
+        while self.color == curses.color_pair(random_pair):
+            random_pair = random.choice(range(6))
         self.color = curses.color_pair(random_pair)
+    def player_coins(self):
+        col, row = self.infos["ENTRY"]
+        col1, row1 = self.infos["EXIT"]
+        path = self.path
+        for char in path:
+            if char == "S":
+                row += 1
+            elif char == "N":
+                row -= 1
+            elif char == "E":
+                col += 1
+            else:
+                col -= 1
+            if row == row1 and col == col1:
+                break
+            self.screen.addstr(row * 3 + 2, col * 4 + 2, "🌟")
+            self.screen.refresh()
+            curses.napms(10)
+
+    def wall_checks(self, row, col, direction):
+        cell = int(self.arr[row][col].value, 16)
+        if direction == "up":
+            if cell & (1 << 0) or \
+            int(self.arr[row - 1][col].value, 16) & (1 << 2):
+                return 0
+        if direction == "down":
+            if cell & (1 << 2) or \
+            int(self.arr[row + 1][col].value, 16) & (1 << 0):
+                return 0
+        if direction == "left":
+            if cell & (1 << 3) or \
+            int(self.arr[row][col - 1].value, 16) & (1 << 1):
+                return 0
+        if direction == "right":
+            if cell & (1 << 1) or \
+            int(self.arr[row][col + 1].value, 16) & (1 << 3):
+                return 0
+        return 1
+
+    def play(self):
+        self.screen.keypad(True)
+        col, row = self.infos["ENTRY"]
+        col1, row1 = self.infos["EXIT"]
+        self.screen.addstr(row * 3 + 2, col * 4 + 2, "👾")
+        self.player_coins()
+        while True:
+            key = self.screen.getkey()
+            if key == "KEY_UP" and self.wall_checks(row, col, "up"):
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                row -= 1
+            elif key == "KEY_DOWN" and self.wall_checks(row, col, "down"):
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                row += 1
+            elif key == "KEY_LEFT" and self.wall_checks(row, col, "left"):
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                col -= 1
+            elif key == "KEY_RIGHT" and self.wall_checks(row, col, "right"):
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                col += 1
+            # elif key in ("p", "P"):
+            #     self.simulate()
+            else:
+                break
+            self.screen.addstr(row * 3 + 2, col * 4 + 2, "👾")
+            self.screen.refresh()
+            curses.napms(10)

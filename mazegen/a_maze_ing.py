@@ -120,10 +120,10 @@ def main(stdscr):
 
         if char in ("r", "R"):
             stdscr.clear()
-            draw.display_menu()
-
             arr, config, visited = prepare()
+            prev_color = draw.color
             draw = Draw(config, arr, stdscr, path=None)
+            draw.color = prev_color
             draw.print_grid()
 
             animation(stdscr, draw, arr, config, visited)
@@ -135,6 +135,14 @@ def main(stdscr):
             stdscr.clear()
             draw.display_menu()
             draw.allow_colors()
+            draw.iterate()
+        if char in ("p", "P"):
+            stdscr.clear()
+            draw.display_menu()
+            draw.iterate()
+            draw.play()
+            stdscr.clear()
+            draw.display_menu()
             draw.iterate()
 
 try :

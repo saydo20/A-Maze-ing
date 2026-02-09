@@ -2,55 +2,137 @@ import sys
 import parsing
 import maze_generation
 import random
+import curses
+from Maze_drawing import Draw
 
-def generate():
-    try:
-        arg = sys.argv
-        if len(arg) != 2:
-            raise ValueError("The program must have exactly two arguments")
-        dict = parsing.convert_dict(arg[1])
-        width = dict["WIDTH"]
-        height = dict["HEIGHT"]
-        entry_row ,entry_col  = dict["ENTRY"]
-        exit_row, exit_col = dict["EXIT"]
-        seed = dict["SEED"]
-        if seed.lower() != "none":
-            random.seed(seed)
-        perfect = dict["PERFECT"]
-        arr = maze_generation.MazeGenerator.create_grid(dict, height, width)
-        maze_generation.MazeGenerator.pattern(arr, height, width, entry_row, entry_col, exit_row, exit_col)
-        visited = maze_generation.MazeGenerator.create_visited_array(height, width)
-        maze_generation.MazeGenerator.generate_maze(entry_row, entry_col, arr, visited, width, height)
-        if not perfect:
-            maze_generation.MazeGenerator.add_loops(arr, height, width)
-        path = maze_generation.MazeGenerator.bfs_pathfind(arr, dict["ENTRY"], dict["EXIT"], width, height)
-        with open(dict["OUTPUT_FILE"], "w") as f:
-            for row in arr:
-                for cell in row:
-                    f.write(str(cell.value))
-                f.write("\n")
-            f.write("\n")
-            f.write(str(tuple(dict["ENTRY"])))
-            f.write("\n")
-            f.write(str(tuple(dict["EXIT"])))
-            f.write("\n")
-            if path:
-                f.write(path)
-            else:
-                f.write("NO_PATH")
-            return arr, dict, path
 
-    except ValueError as e:
-        print(f"Validation error: {e}")
-        exit(1)
-    except FileNotFoundError as e:
-        print(f"File error: {e}")
-        exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        exit(1)
+def prepare():
+    """
+    Phase 1: parse args + build initial grid + apply pattern.
+    DO NOT generate the maze here (we want to animate that in curses).
+    """
+    arg = sys.argv
+    if len(arg) != 2:
+        raise ValueError("The program must have exactly two arguments")
+
+    config = parsing.convert_dict(arg[1])
+
+    width = config["WIDTH"]
+    height = config["HEIGHT"]
+    entry_row, entry_col = config["ENTRY"]
+    exit_row, exit_col = config["EXIT"]
+
+    seed = config["SEED"]
+    if seed.lower() != "none":
+        random.seed(seed)
+
+    arr = maze_generation.MazeGenerator.create_grid(config, height, width)
+    maze_generation.MazeGenerator.pattern(arr, height, width, entry_row, entry_col, exit_row, exit_col)
+
+    visited = maze_generation.MazeGenerator.create_visited_array(height, width)
+    return arr, config, visited
+
+
+def finalize_and_save(arr, config):
+    """
+    Phase 2: after generation is done (animated), optionally add loops,
+    compute path, save output file.
+    """
+    width = config["WIDTH"]
+    height = config["HEIGHT"]
+
+    if not config["PERFECT"]:
+        maze_generation.MazeGenerator.add_loops(arr, height, width)
+
+    path = maze_generation.MazeGenerator.bfs_pathfind(arr, config["ENTRY"], config["EXIT"], width, height)
+
+    with open(config["OUTPUT_FILE"], "w") as f:
+        for row in arr:
+            for cell in row:
+                f.write(str(cell.value))
+            f.write("\n")
+        f.write("\n")
+        f.write(str(tuple(config["ENTRY"])))
+        f.write("\n")
+        f.write(str(tuple(config["EXIT"])))
+        f.write("\n")
+        f.write(path if path else "NO_PATH")
+
+    return path
+
+
+def animation(stdscr, draw, arr, config, visited):
+    """
+    Runs the DFS generator and redraws only the changed cells per step.
+    """
+    height = config["HEIGHT"]
+    width = config["WIDTH"]
+    entry_row, entry_col = config["ENTRY"]
+
+    for (r1, c1), (r2, c2) in maze_generation.MazeGenerator.generate_maze(
+        entry_row, entry_col, arr, visited, width, height
+    ):
+        draw.print_walls(int(arr[r1][c1].value, 16), r1, c1)
+        draw.print_walls(int(arr[r2][c2].value, 16), r2, c2)
+
+        if arr[r1][c1].in_pattern:
+            draw.color_cell(r1, c1, 1)
+        if arr[r2][c2].in_pattern:
+            draw.color_cell(r2, c2, 1)
+
+        stdscr.refresh()
+        curses.napms(20)
+
 
 if __name__ == "__main__":
-    generate()
     import banner
-    import Maze_drawing
+
+    def main(stdscr):
+        stdscr.clear()
+        curses.curs_set(0)
+
+        # initial build (no maze generation yet)
+        arr, config, visited = prepare()
+
+        # draw empty frame/grid
+        draw = Draw(config, arr, stdscr, path=None)
+        draw.print_grid()
+
+        animation(stdscr, draw, arr, config, visited)
+
+        # after carving, compute path + save file
+        draw.path = finalize_and_save(arr, config)
+
+        # final touches
+        draw.mark_entery_exit()
+        draw.iterate()
+
+        while True:
+            draw.display_menu()
+            char = stdscr.getkey()
+
+            if char in ("q", "Q"):
+                break
+
+            if char in ("s", "S"):
+                draw.show_path = not draw.show_path
+                if draw.show_path:
+                    draw.print_path()
+                else:
+                    draw.clear_path()
+
+            if char in ("r", "R"):
+                stdscr.clear()
+                draw.display_menu()
+
+                arr, config, visited = prepare()
+                draw = Draw(config, arr, stdscr, path=None)
+                draw.print_grid()
+
+                animation(stdscr, draw, arr, config, visited)
+
+                draw.path = finalize_and_save(arr, config)
+                draw.mark_entery_exit()
+                draw.iterate()
+
+    curses.wrapper(main)

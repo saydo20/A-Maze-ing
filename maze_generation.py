@@ -144,7 +144,7 @@ class MazeGenerator:
     @classmethod
     def generate_maze(
         cls, entry_row: int, entry_col: int, grid: list, visited: list, width: int, height: int
-    ) -> None:
+    ):
         stack = []
         stack.append((entry_row, entry_col))
         visited[entry_row][entry_col] = True
@@ -165,8 +165,10 @@ class MazeGenerator:
                     grid, current_row, current_col, neighbor_row, neighbor_col)
                 visited[neighbor_row][neighbor_col] = True
                 stack.append((neighbor_row, neighbor_col))
+
             else:
                 stack.pop()
+            yield (current_row, current_col), (neighbor_row, neighbor_col)
 
     @classmethod
     def can_move(cls, grid: list, row1: int, col1: int, row2: int, col2: int) -> bool:

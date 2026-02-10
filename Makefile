@@ -20,9 +20,6 @@ clean:
 	rm -rf venv
 	rm -rf dist
 	rm -rf build
-	rm -rf *.egg-info
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
 
 lint:
 	@echo "Running linting..."

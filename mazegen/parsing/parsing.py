@@ -20,11 +20,11 @@ def make_dic(file: str) -> dict:
         if len(parts) != 2:
             raise IndexError(f"Line '{line}' must have exactly one '='")
 
-        key = parts[0].strip()
+        key = parts[0].strip().upper()
         value = parts[1].strip()
         if key in config_dict:
             raise ValueError(f"Duplicate key '{key}' found at line {line}")
-        config_dict[key.upper()] = value
+        config_dict[key] = value
     return config_dict
 
 
@@ -85,7 +85,3 @@ def convert_dict(file: str) -> dict:
     if dict["ENTRY"] == dict["EXIT"]:
                 raise ValueError("the entry and the exit cannot been in the same position")
     return dict
-
-    # except Exception as Error:
-    #     print(f"Error : {Error}")
-    #     exit()

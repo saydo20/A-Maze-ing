@@ -246,8 +246,9 @@ class Draw:
         self.screen.addstr(x + 1, y, "(S) - Show/Hide path", curses.A_BOLD)
         self.screen.addstr(x + 2, y, "(R) - Regenerate", curses.A_BOLD)
         self.screen.addstr(x + 3, y, "(C) - Change Colors", curses.A_BOLD)
-        self.screen.addstr(x + 4, y, "(Q) - Quit", curses.A_BOLD)
-        self.screen.addstr(x + 5, y, "Choice? :", curses.A_BOLD)
+        self.screen.addstr(x + 4, y, "(P) - Player mode", curses.A_BOLD)
+        self.screen.addstr(x + 5, y, "(Q) - Quit", curses.A_BOLD)
+        self.screen.addstr(x + 6, y, "Choice? :", curses.A_BOLD)
         self.screen.refresh()
 
     def allow_colors(self):
@@ -256,7 +257,7 @@ class Draw:
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK) 
+        curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
         random_pair = random.choice(range(6))
         while self.color == curses.color_pair(random_pair):
             random_pair = random.choice(range(6))
@@ -300,6 +301,29 @@ class Draw:
                 return 0
         return 1
 
+    def simulate(self):
+        col, row = self.infos["ENTRY"]
+        col1, row1 = self.infos["EXIT"]
+        path = self.path
+        for char in path:
+            if char == "N":
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
+                row -= 1
+            elif char == "S":
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
+                row += 1
+            elif char == "W":
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
+                col -= 1
+            elif char == "E":
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
+                col += 1
+            if row == row1 and col == col1:
+                break
+            self.screen.addstr(row * 3 + 2, col * 4 + 2, "👾")
+            self.screen.refresh()
+            curses.napms(90)
+
     def play(self):
         self.screen.keypad(True)
         col, row = self.infos["ENTRY"]
@@ -309,20 +333,24 @@ class Draw:
         while True:
             key = self.screen.getkey()
             if key == "KEY_UP" and self.wall_checks(row, col, "up"):
-                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
                 row -= 1
             elif key == "KEY_DOWN" and self.wall_checks(row, col, "down"):
-                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
                 row += 1
             elif key == "KEY_LEFT" and self.wall_checks(row, col, "left"):
-                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
                 col -= 1
             elif key == "KEY_RIGHT" and self.wall_checks(row, col, "right"):
-                self.screen.addstr(row * 3 + 2, col * 4 + 2, " ")
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
                 col += 1
-            # elif key in ("p", "P"):
-            #     self.simulate()
+            elif key in ("p", "P"):
+                self.screen.addstr(row * 3 + 2, col * 4 + 2, "  ")
+                self.simulate()
+                break
             else:
+                break
+            if row == row1 and col == col1:
                 break
             self.screen.addstr(row * 3 + 2, col * 4 + 2, "👾")
             self.screen.refresh()

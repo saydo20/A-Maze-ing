@@ -148,4 +148,4 @@ def main(stdscr):
 try :
     curses.wrapper(main)
 except Exception as e:
-    print(f"Unexpected error: {e}")
+    print(f"Unexpected error: {e} :(")

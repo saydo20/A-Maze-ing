@@ -1,9 +1,9 @@
 import sys
-from parsing import parsing
-from maze_generation import maze_generation
 import random
 import curses
-from maze_drawing.Maze_drawing import Draw
+from .maze_drawing.Maze_drawing import Draw
+from .parsing import parsing
+from .maze_generation import maze_generation
 
 
 def prepare():

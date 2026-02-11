@@ -144,7 +144,7 @@ class MazeGenerator:
     @classmethod
     def generate_maze(
         cls, entry_row: int, entry_col: int, grid: list, visited: list, width: int, height: int
-    ):
+    ): #return value
         stack = []
         stack.append((entry_row, entry_col))
         visited[entry_row][entry_col] = True

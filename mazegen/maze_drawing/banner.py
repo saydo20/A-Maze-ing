@@ -1,6 +1,6 @@
 import curses
 
-def main(stdscr):
+def main(stdscr:object) -> None:
     curses.curs_set(0)
     stdscr.keypad(True)
 

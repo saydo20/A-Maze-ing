@@ -1,9 +1,9 @@
 import sys
 import random
 import curses
-from .maze_drawing.Maze_drawing import Draw
-from .parsing import parsing
-from .maze_generation import maze_generation
+from maze_drawing.Maze_drawing import Draw
+from parsing import parsing
+from maze_generation import maze_generation
 
 
 def prepare():
@@ -26,7 +26,8 @@ def prepare():
         random.seed(seed)
 
     arr = maze_generation.MazeGenerator.create_grid(config, height, width)
-    maze_generation.MazeGenerator.pattern(arr, height, width, entry_row, entry_col, exit_row, exit_col)
+    maze_generation.MazeGenerator.pattern(arr, height, width, entry_row,
+                                          entry_col, exit_row, exit_col)
 
     visited = maze_generation.MazeGenerator.create_visited_array(height, width)
     return arr, config, visited
@@ -43,7 +44,9 @@ def finalize_and_save(arr, config):
     if not config["PERFECT"]:
         maze_generation.MazeGenerator.add_loops(arr, height, width)
 
-    path = maze_generation.MazeGenerator.bfs_pathfind(arr, config["ENTRY"], config["EXIT"], width, height)
+    path = maze_generation.MazeGenerator.bfs_pathfind(arr, config["ENTRY"],
+                                                      config["EXIT"], width,
+                                                      height)
     with open(config["OUTPUT_FILE"], "w") as f:
         for row in arr:
             for cell in row:
@@ -68,6 +71,11 @@ def animation(stdscr, draw, arr, config, visited):
     """
     Runs the DFS generator and redraws only the changed cells per step.
     """
+    height, width = stdscr.getmaxyx()
+    height1 = config["HEIGHT"] * 3 + 5
+    width1 = config["WIDTH"] * 4
+    if height1 > height or width1 > width:
+        raise ValueError
     height = config["HEIGHT"]
     width = config["WIDTH"]
     entry_col, entry_row = config["ENTRY"]
@@ -87,8 +95,9 @@ if __name__ == "__main__":
         print(f"Unexpected error: {e} :(")
         exit(0)
     except KeyboardInterrupt as e:
-        print(f"sir t9awed {e}")
+        print(f"See you Later {e}")
         exit(0)
+
 
 def main(stdscr):
     stdscr.clear()
@@ -151,11 +160,15 @@ def main(stdscr):
             draw.display_menu()
             draw.iterate()
 
-try :
+
+try:
     curses.wrapper(main)
+except KeyboardInterrupt as e:
+    print(f"See you Later {e}")
+    exit(0)
+except ValueError:
+    print(f"Screen too small :(")
+    exit(0)
 except Exception as e:
     print(f"Unexpected error: {e} :(")
-    exit(0)
-except KeyboardInterrupt as e:
-    print(f"sir t9awed {e}")
     exit(0)

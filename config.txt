@@ -1,7 +1,7 @@
-WIDTH = 50
-HEIGHT = 30
+WIDTH = 20
+HEIGHT = 20
 ENTRY = 1, 1
-EXIT = 9, 4
+EXIT = 4, 4
 OUTPUT_FILE = maze.txt
-perfect = true
-SEED = 4
+perfect = false
+SEED = None

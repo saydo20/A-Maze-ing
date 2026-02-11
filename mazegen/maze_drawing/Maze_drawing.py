@@ -1,9 +1,28 @@
 import curses
 import random
+from typing import Dict, List, Any
 
 
 class Draw:
-    def __init__(self, infos, arr, screen, path):
+    """
+    A class for rendering and managing maze visualization and interaction.
+
+    This class handles all drawing operations for the maze including walls,
+    paths, player movement, and interactive features.
+    """
+
+    def __init__(self, infos: Dict[str, Any], arr: List[List[Any]],
+                 screen: Any, path: str) -> None:
+        """
+        Initialize the Draw class with maze information and screen.
+
+        Args:
+            infos: Dictionary containing maze configuration (HEIGHT, WIDTH,
+                   ENTRY, EXIT).
+            arr: 2D list representing the maze grid with cell objects.
+            screen: Curses screen object for rendering.
+            path: String representing the solution path through the maze.
+        """
         self.arr = []
         self.heigth = infos["HEIGHT"]
         self.width = infos["WIDTH"]
@@ -14,7 +33,12 @@ class Draw:
         self.show_path = False
         self.color = curses.color_pair(0)
 
-    def print_grid(self):
+    def print_grid(self) -> None:
+        """
+        Print the entire maze grid with all walls and cells.
+
+        Iterates through each cell in the maze array and draws its walls.
+        """
         i = 0
         for row in self.arr:
             j = 0
@@ -24,7 +48,12 @@ class Draw:
                 j += 1
             i += 1
 
-    def mark_entery_exit(self):
+    def mark_entery_exit(self) -> None:
+        """
+        Mark the entry and exit points on the maze.
+
+        Displays 'S' at the entry point and 'E' at the exit point.
+        """
         entry_col, entry_row = self.infos["ENTRY"]
         x = entry_row * 3
         y = entry_col * 4
@@ -34,7 +63,16 @@ class Draw:
         y = exit_col * 4
         self.screen.addstr(x + 2, y + 2, "E")
 
-    def color_cell(self, height, width, path):
+    def color_cell(self, height: int, width: int, path: int) -> None:
+        """
+        Color a specific cell in the maze.
+
+        Args:
+            height: Row index of the cell.
+            width: Column index of the cell.
+            path: Flag indicating if this cell is part of the path (1)
+                  or not (0).
+        """
         x = height * 3
         y = width * 4
         if path and self.show_path:
@@ -51,7 +89,13 @@ class Draw:
             self.screen.addstr(x + 1, y + 1, "███", color)
             self.screen.addstr(x + 2, y + 1, "███", color)
 
-    def clear_path(self):
+    def clear_path(self) -> None:
+        """
+        Clear the solution path from the maze display.
+
+        Animates the clearing of the path by following the path string
+        and removing colored cells and walls.
+        """
         col, row = self.infos["ENTRY"]
         col1, row1 = self.infos["EXIT"]
         path = self.path
@@ -74,9 +118,15 @@ class Draw:
                 break
             self.color_cell(row, col, 1)
             self.screen.refresh()
-            curses.napms(50)
+            curses.napms(40)
 
-    def print_path(self):
+    def print_path(self) -> None:
+        """
+        Display the solution path through the maze.
+
+        Animates the drawing of the solution path from entry to exit
+        using colored cells and walls.
+        """
         col, row = self.infos["ENTRY"]
         col1, row1 = self.infos["EXIT"]
         path = self.path
@@ -101,9 +151,15 @@ class Draw:
                 break
             self.color_cell(row, col, 1)
             self.screen.refresh()
-            curses.napms(50)
+            curses.napms(40)
 
-    def iterate(self):
+    def iterate(self) -> None:
+        """
+        Iterate through and render the entire maze.
+
+        Draws all walls, colors cells in the pattern, and marks entry/exit
+        points.
+        """
         height = 0
         for row in self.arr:
             width = 0
@@ -113,13 +169,23 @@ class Draw:
                     self.color_cell(height, width, 0)
                 width += 1
             height += 1
-            self.screen.refresh()
-            curses.napms(10)
+        self.screen.refresh()
+        curses.napms(10)
         self.mark_entery_exit()
         if self.show_path:
             self.show_path = not self.show_path
 
-    def previous_cell(self, height, width):
+    def previous_cell(self, height: int, width: int) -> int:
+        """
+        Check if the previous cell exists and has walls.
+
+        Args:
+            height: Row index of the cell to check.
+            width: Column index of the cell to check.
+
+        Returns:
+            1 if cell is out of bounds or has all walls, 0 otherwise.
+        """
         if width < 0 or height < 0:
             return 1
         cell = int(self.arr[height][width].value, 16)
@@ -127,7 +193,20 @@ class Draw:
             return 0
         return 1
 
-    def check_walls(self, height, width):
+    def check_walls(self, height: int, width: int) -> str:
+        """
+        Determine the appropriate corner character for a cell intersection.
+
+        Checks all four directions around an intersection to determine which
+        box-drawing character to use.
+
+        Args:
+            height: Row index of the cell.
+            width: Column index of the cell.
+
+        Returns:
+            Unicode box-drawing character for the corner/intersection.
+        """
         walls = [0, 0, 0, 0]
         cell = int(self.arr[height][width].value, 16)
         if cell & (1 << 0):
@@ -177,7 +256,19 @@ class Draw:
         else:
             return " "
 
-    def borders_check(self, height, width, which_border):
+    def borders_check(self, height: int, width: int,
+                      which_border: int) -> int:
+        """
+        Check if a border wall exists at the maze edge.
+
+        Args:
+            height: Row index of the cell.
+            width: Column index of the cell.
+            which_border: 0 for top border, 1 for left border.
+
+        Returns:
+            1 if border wall exists, 0 otherwise.
+        """
         current = int(self.arr[height][width].value, 16)
         if which_border and (current & (1 << 3) or
            int(self.arr[height][width - 1].value, 16) & (1 << 1)):
@@ -188,7 +279,18 @@ class Draw:
             return 1
         return 0
 
-    def print_corners(self, height, width):
+    def print_corners(self, height: int, width: int) -> None:
+        """
+        Print corner characters for a specific cell.
+
+        Handles special cases for maze edges and determines appropriate
+        corner characters for all four corners of a cell.
+        note that every cell is responsible for its top left corner
+
+        Args:
+            height: Row index of the cell.
+            width: Column index of the cell.
+        """
         x = height * 3
         y = width * 4
         cell = self.check_walls(height, width)
@@ -217,7 +319,19 @@ class Draw:
             else:
                 self.screen.addstr(x + 3, y, "═", self.color)
 
-    def print_walls(self, cell_wals, height, width):
+    def print_walls(self, cell_wals: int, height: int, width: int) -> None:
+        """
+        Print walls for a specific cell.
+
+        Draws the top, left walls based on the cell's
+        wall configuration. the other bottom, right walls bottom and right borders,
+        are handeled when reaching the edge
+
+        Args:
+            cell_wals: Integer representing wall configuration (bit flags).
+            height: Row index of the cell.
+            width: Column index of the cell.
+        """
         x = height * 3
         y = width * 4
         self.print_corners(height, width)
@@ -239,7 +353,13 @@ class Draw:
                 self.screen.addstr(x + 1, y + 4, "║", self.color)
                 self.screen.addstr(x + 2, y + 4, "║", self.color)
 
-    def display_menu(self):
+    def display_menu(self) -> None:
+        """
+        Display the interactive menu options.
+
+        Shows available commands for maze interaction including path toggle,
+        regeneration, color change, player mode, and quit.
+        """
         x = self.heigth * 3 + 2
         y = 0
         self.screen.addstr(x, y, "=== A-Maze-ing ===", curses.A_BOLD)
@@ -248,10 +368,15 @@ class Draw:
         self.screen.addstr(x + 3, y, "(C) - Change Colors", curses.A_BOLD)
         self.screen.addstr(x + 4, y, "(P) - Player mode", curses.A_BOLD)
         self.screen.addstr(x + 5, y, "(Q) - Quit", curses.A_BOLD)
-        self.screen.addstr(x + 6, y, "Choice? :", curses.A_BOLD)
         self.screen.refresh()
 
-    def allow_colors(self):
+    def allow_colors(self) -> None:
+        """
+        Initialize and randomly select maze colors.
+
+        Sets up color pairs and randomly chooses a new color scheme different
+        from the current one.
+        """
         curses.start_color()
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -262,7 +387,14 @@ class Draw:
         while self.color == curses.color_pair(random_pair):
             random_pair = random.choice(range(6))
         self.color = curses.color_pair(random_pair)
-    def player_coins(self):
+
+    def player_coins(self) -> None:
+        """
+        Place collectible coins along the solution path.
+
+        Displays star emojis at each cell in the solution path for the
+        player to collect.
+        """
         col, row = self.infos["ENTRY"]
         col1, row1 = self.infos["EXIT"]
         path = self.path
@@ -275,33 +407,48 @@ class Draw:
                 col += 1
             else:
                 col -= 1
-            if row == row1 and col == col1:
-                break
             self.screen.addstr(row * 3 + 2, col * 4 + 2, "🌟")
             self.screen.refresh()
             curses.napms(10)
 
-    def wall_checks(self, row, col, direction):
+    def wall_checks(self, row: int, col: int, direction: str) -> int:
+        """
+        Check if movement in a direction is blocked by a wall.
+
+        Args:
+            row: Current row position.
+            col: Current column position.
+            direction: Direction to check ("up", "down", "left", "right").
+
+        Returns:
+            1 if movement is allowed, 0 if blocked by wall.
+        """
         cell = int(self.arr[row][col].value, 16)
         if direction == "up":
-            if cell & (1 << 0) or \
-            int(self.arr[row - 1][col].value, 16) & (1 << 2):
+            if cell & (1 << 0) or\
+                    int(self.arr[row - 1][col].value, 16) & (1 << 2):
                 return 0
         if direction == "down":
             if cell & (1 << 2) or \
-            int(self.arr[row + 1][col].value, 16) & (1 << 0):
+                    int(self.arr[row + 1][col].value, 16) & (1 << 0):
                 return 0
         if direction == "left":
             if cell & (1 << 3) or \
-            int(self.arr[row][col - 1].value, 16) & (1 << 1):
+                    int(self.arr[row][col - 1].value, 16) & (1 << 1):
                 return 0
         if direction == "right":
             if cell & (1 << 1) or \
-            int(self.arr[row][col + 1].value, 16) & (1 << 3):
+                    int(self.arr[row][col + 1].value, 16) & (1 << 3):
                 return 0
         return 1
 
-    def simulate(self):
+    def simulate(self) -> None:
+        """
+        Simulate automatic player movement along the solution path.
+
+        Animates a player character moving from entry to exit following
+        the solution path.
+        """
         col, row = self.infos["ENTRY"]
         col1, row1 = self.infos["EXIT"]
         path = self.path
@@ -322,9 +469,16 @@ class Draw:
                 break
             self.screen.addstr(row * 3 + 2, col * 4 + 2, "👾")
             self.screen.refresh()
-            curses.napms(90)
+            curses.napms(80)
 
-    def play(self):
+    def play(self) -> None:
+        """
+        Enable interactive player mode with keyboard controls.
+
+        Allows user to navigate the maze using arrow keys, with collision
+        detection against walls. Press 'P' to see automatic solution or
+        any other key to exit.
+        """
         self.screen.keypad(True)
         col, row = self.infos["ENTRY"]
         col1, row1 = self.infos["EXIT"]

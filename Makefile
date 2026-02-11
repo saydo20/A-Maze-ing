@@ -2,7 +2,7 @@ PYTHON := python3
 
 MAIN_SCRIPT := mazegen/a_maze_ing.py
 
-CONFIG_FILE := mazegen/config.txt
+CONFIG_FILE := config.txt
 
 install:
 	@echo "Installing dependencies..."

@@ -11,6 +11,7 @@ class Cell:
 
 class MazeGenerator:
     hexa = "0123456789ABCDEF"
+
     @classmethod
     def create_grid(cls, dict: dict, height: int, width: int) -> list:
         arr = []

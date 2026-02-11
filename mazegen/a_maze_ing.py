@@ -81,7 +81,14 @@ def animation(stdscr, draw, arr, config, visited):
 
 
 if __name__ == "__main__":
-    from maze_drawing import banner
+    try:
+        from maze_drawing import banner
+    except Exception as e:
+        print(f"Unexpected error: {e} :(")
+        exit(0)
+    except KeyboardInterrupt as e:
+        print(f"sir t9awed {e}")
+        exit(0)
 
 def main(stdscr):
     stdscr.clear()
@@ -148,3 +155,7 @@ try :
     curses.wrapper(main)
 except Exception as e:
     print(f"Unexpected error: {e} :(")
+    exit(0)
+except KeyboardInterrupt as e:
+    print(f"sir t9awed {e}")
+    exit(0)

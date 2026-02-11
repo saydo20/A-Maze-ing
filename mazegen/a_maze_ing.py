@@ -14,7 +14,6 @@ def prepare():
     arg = sys.argv
     if len(arg) != 2:
         raise ValueError("The program must have exactly two arguments")
-
     config = parsing.convert_dict(arg[1])
 
     width = config["WIDTH"]

@@ -81,5 +81,5 @@ def main(stdscr: Any) -> None:
         elif key in (ord('q'), ord('Q')):
             break
 
-
-curses.wrapper(main)
+def run():
+    curses.wrapper(main)

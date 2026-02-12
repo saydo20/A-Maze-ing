@@ -1,9 +1,14 @@
 import sys
 import random
 import curses
-from maze_drawing.Maze_drawing import Draw
-from parsing import parsing
-from maze_generation import maze_generation
+try:
+    from .maze_drawing.Maze_drawing import Draw
+    from .parsing import parsing
+    from .maze_generation import maze_generation
+except ImportError:
+    from maze_drawing.Maze_drawing import Draw
+    from parsing import parsing
+    from maze_generation import maze_generation
 
 
 def prepare():
@@ -75,7 +80,7 @@ def animation(stdscr, draw, arr, config, visited):
     height1 = config["HEIGHT"] * 3 + 5
     width1 = config["WIDTH"] * 4
     if height1 > height or width1 > width:
-        raise ValueError
+        raise SystemError("Screen too small :(")
     height = config["HEIGHT"]
     width = config["WIDTH"]
     entry_col, entry_row = config["ENTRY"]
@@ -87,17 +92,17 @@ def animation(stdscr, draw, arr, config, visited):
         stdscr.refresh()
         curses.napms(10)
 
-
 if __name__ == "__main__":
-    try:
-        from maze_drawing import banner
-    except Exception as e:
-        print(f"Unexpected error: {e} :(")
-        exit(0)
-    except KeyboardInterrupt as e:
-        print(f"See you Later {e}")
-        exit(0)
-
+        try:
+            from maze_drawing import banner
+            prepare()
+            banner.run()
+        except Exception as e:
+            print(f"Unexpected error: {e} :(")
+            exit(0)
+        except KeyboardInterrupt as e:
+            print(f"See you Later {e}")
+            exit(0)
 
 def main(stdscr):
     stdscr.clear()
@@ -165,9 +170,6 @@ try:
     curses.wrapper(main)
 except KeyboardInterrupt as e:
     print(f"See you Later {e}")
-    exit(0)
-except ValueError:
-    print(f"Screen too small :(")
     exit(0)
 except Exception as e:
     print(f"Unexpected error: {e} :(")

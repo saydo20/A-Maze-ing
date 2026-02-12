@@ -12,6 +12,7 @@ install:
 run:
 	@echo "Running thee project..."
 	$(PYTHON) $(MAIN_SCRIPT) $(CONFIG_FILE)
+	
 debug:
 	@echo "Running in debug mode..."
 	$(PYTHON) -m pdb $(MAIN_SCRIPT)

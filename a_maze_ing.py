@@ -119,8 +119,8 @@ def animation(stdscr: Any, draw: Draw, arr: list, config: dict,
     """
 
     height, width = stdscr.getmaxyx()
-    height1 = config["HEIGHT"] * 3 + 8
-    width1 = config["WIDTH"] * 4
+    height1 = config["HEIGHT"] * 3 + 7
+    width1 = config["WIDTH"] * 4 + 1
     if height1 > height or width1 > width:
         raise SystemError("Screen too small ")
     height = config["HEIGHT"]

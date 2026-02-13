@@ -182,7 +182,7 @@ class MazeGenerator:
             row2 (int): Row index of the second cell.
             col2 (int): Column index of the second cell.
         """
-    
+
         cel1 = arr[row1][col1].value
         cel2 = arr[row2][col2].value
         cel1 = int(cel1, 16)

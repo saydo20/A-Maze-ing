@@ -76,7 +76,7 @@ def convert_dict(file: str) -> dict:
         ValueError: If SEED is empty.
         NotImplementedError: If an unrecognized key is found in the file.
     """
- 
+
     dict = make_dic(file)
     for key in dict:
         if key == "WIDTH" or key == "HEIGHT":

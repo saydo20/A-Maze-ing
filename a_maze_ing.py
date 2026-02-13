@@ -17,9 +17,11 @@ def prepare() -> tuple[list, dict, list]:
 
     Returns:
         tuple: A tuple containing:
-            - arr (list): The 2D grid of maze cells with the 42 pattern applied.
+            - arr (list): The 2D grid of maze cells with the
+            42 pattern applied.
             - config (dict): The parsed configuration dictionary containing
-              keys like WIDTH, HEIGHT, ENTRY, EXIT, SEED, PERFECT, OUTPUT_FILE.
+              keys like WIDTH, HEIGHT, ENTRY, EXIT, SEED, PERFECT,
+              OUTPUT_FILE.
             - visited (list): A 2D boolean array tracking visited cells
               during maze generation.
 
@@ -94,7 +96,8 @@ def finalize_and_save(arr: list, config: dict) -> str | None:
     return path
 
 
-def animation(stdscr: object, draw: object, arr: list, config: dict, visited: list) -> None:
+def animation(stdscr: object, draw: object, arr: list, config: dict,
+              visited: list) -> None:
     """Animate the DFS maze generation step by step in the terminal.
 
     Runs the DFS maze generator as a generator function, redrawing only

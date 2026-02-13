@@ -1,6 +1,6 @@
 PYTHON := python3
 
-MAIN_SCRIPT := mazegen/a_maze_ing.py
+MAIN_SCRIPT := a_maze_ing.py
 
 CONFIG_FILE := config.txt
 

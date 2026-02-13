@@ -1,293 +1,193 @@
-# A-Maze-ing Project - Complete Guide for Beginners
-
-## 📋 Table of Contents
-1. [What is This Project?](#what-is-this-project)
-2. [Core Concepts Explained](#core-concepts-explained)
-3. [How the Program Works](#how-the-program-works)
-4. [Task Division (2 People)](#task-division-2-people)
-5. [Person 1: Detailed Tasks](#person-1-detailed-tasks)
-6. [Person 2: Detailed Tasks](#person-2-detailed-tasks)
-7. [Shared Tasks](#shared-tasks)
-8. [Timeline & Milestones](#timeline--milestones)
+*This project has been created as part of the 42 curriculum by sjdia, ymouafak.*
 
 ---
 
-## 🎮 What is This Project?
+# A-Maze-ing
 
-You're building a **maze generator program** in Python. Think of it like the software that creates mazes in video games or puzzle books.
+## Description
 
-### What Your Program Does:
+A-Maze-ing is a maze generator and visualizer built in Python. The goal of the project is to generate random mazes, display them either in the terminal or in a graphical window, and provide an interactive experience including pathfinding, animations, and a player mode.
 
-```
-INPUT (Config File)          PROCESS                OUTPUT
-┌─────────────────┐         ┌──────────┐         ┌─────────────────┐
-│ WIDTH=10        │  ────>  │  Maze    │  ────>  │ Hex File        │
-│ HEIGHT=8        │         │Generator │         │ (encoded walls) │
-│ ENTRY=0,0       │         └──────────┘         └─────────────────┘
-│ EXIT=9,7        │                │
-│ PERFECT=True    │                │
-└─────────────────┘                ▼
-                              ┌──────────┐
-                              │ Visual   │
-                              │ Display  │
-                              └──────────┘
-```
+The program reads a configuration file to set the maze parameters, generates a maze using the **Depth-First Search (DFS)** algorithm, finds the shortest path using **Breadth-First Search (BFS)**, and renders everything visually with an interactive interface built using the `curses` library.
 
-### The 4 Main Components:
-
-1. **Configuration Parser** - Reads settings from a text file
-2. **Maze Generator** - Creates the random maze using an algorithm
-3. **File Writer** - Saves maze in hexadecimal format
-4. **Visualizer** - Shows maze on screen with user interactions
+Key features include:
+- Random maze generation with an optional seed for reproducibility
+- The '42' pattern embedded in the maze
+- Shortest path visualization
+- Maze generation and pathfinding animations
+- A player mode to navigate the maze manually
+- A reusable Python package (`mazegen`) for the core logic
 
 ---
 
-## 🧩 Core Concepts Explained
+## Instructions
 
-### 1. What is a Maze Cell?
+### Requirements
 
-A maze is a grid of cells (like graph paper):
+- Python 3.10 or higher
+- A terminal that supports `curses` (Linux / macOS)
 
-```
-┌─────┬─────┬─────┐
-│  1  │  2  │  3  │  ← Each square is a "cell"
-├─────┼─────┼─────┤
-│  4  │  5  │  6  │
-├─────┼─────┼─────┤
-│  7  │  8  │  9  │
-└─────┴─────┴─────┘
-```
-
-Each cell has 4 possible walls:
-- **North** (top)
-- **East** (right) 
-- **South** (bottom)
-- **West** (left)
-
-### 2. Wall Representation
-
-Example of one cell with walls:
-
-```
-     North wall ✓
-        ┌───┐
-West ✗  │   │  East ✓
-        └───┘
-     South ✗
-```
-
-This cell has: North=YES, East=YES, South=NO, West=NO
-
-### 3. Hexadecimal Encoding (IMPORTANT!)
-
-Each cell's walls are encoded as ONE hexadecimal digit (0-F).
-
-#### How It Works:
-
-Each wall is represented by 1 bit:
-- Bit 0 (value 1) = North wall
-- Bit 1 (value 2) = East wall
-- Bit 2 (value 4) = South wall
-- Bit 3 (value 8) = West wall
-
-If a wall exists, add its value:
-
-**Example 1:** North + East walls
-```
-North (1) + East (2) = 3
-Hex: 3
-```
-
-**Example 2:** All walls
-```
-North (1) + East (2) + South (4) + West (8) = 15
-Hex: F
-```
-
-**Example 3:** Only South and West
-```
-South (4) + West (8) = 12
-Hex: C
-```
-
-#### Complete Reference Table:
-
-| Walls Present | Calculation | Hex | Visual |
-|---------------|-------------|-----|--------|
-| None | 0 | `0` | No walls |
-| North | 1 | `1` | `┌─┐  ` |
-| East | 2 | `2` | ` │` |
-| North + East | 1+2=3 | `3` | `┌─┐│` |
-| South | 4 | `4` | `└─┘` |
-| North + South | 1+4=5 | `5` | `┌─┐└─┘` |
-| East + South | 2+4=6 | `6` | ` │└─┘` |
-| N + E + S | 1+2+4=7 | `7` | `┌─┐│└─┘` |
-| West | 8 | `8` | `│ ` |
-| North + West | 1+8=9 | `9` | `│┌─┐` |
-| East + West | 2+8=10 | `A` | `│ │` |
-| N + E + W | 1+2+8=11 | `B` | `│┌─┐│` |
-| South + West | 4+8=12 | `C` | `│└─┘` |
-| N + S + W | 1+4+8=13 | `D` | `│┌─┐└─┘` |
-| E + S + W | 2+4+8=14 | `E` | `│ │└─┘` |
-| All walls | 1+2+4+8=15 | `F` | `│┌─┐│└─┘` |
-
-### 4. Perfect Maze Concept
-
-A **perfect maze** has exactly ONE path between entry and exit:
-
-```
-PERFECT MAZE (only 1 path):     IMPERFECT MAZE (multiple paths):
-┌───┬───┬───┐                   ┌───┬───┬───┐
-│ E   * │   │                   │ E * * * * │
-├───┤ * └───┤                   │ * ┴ * ┴ * │
-│   │ * * * │                   │ * * * * X │
-└───┴───┴─X─┘                   └───┴───┴───┘
-```
-
----
-
-## 🔄 How the Program Works
-
-### Step-by-Step Flow:
-
-```
-1. User runs: python3 a_maze_ing.py config.txt
-                    │
-                    ▼
-2. Program reads config.txt
-   ┌────────────────────┐
-   │ WIDTH=10           │
-   │ HEIGHT=8           │
-   │ ENTRY=0,0          │
-   │ EXIT=9,7           │
-   │ OUTPUT_FILE=maze.txt│
-   │ PERFECT=True       │
-   └────────────────────┘
-                    │
-                    ▼
-3. Validate configuration
-   - Is WIDTH > 0?
-   - Is ENTRY inside maze?
-   - Is EXIT inside maze?
-   - Are ENTRY and EXIT different?
-                    │
-                    ▼
-4. Generate maze using algorithm
-   - Start with grid of cells
-   - Use Recursive Backtracker (or Prim's/Kruskal's)
-   - Remove walls to create paths
-   - Ensure no 3×3 open areas
-   - Add "42" pattern
-   - If PERFECT=True, ensure single path
-                    │
-                    ▼
-5. Find shortest path (BFS algorithm)
-   - From ENTRY to EXIT
-   - Record directions: N, E, S, W
-                    │
-                    ▼
-6. Convert to hexadecimal
-   - For each cell, encode walls as hex
-   - Example: North+East walls = 3
-                    │
-                    ▼
-7. Write to output file
-   F8A3C...  ← Row 1
-   3B5D9...  ← Row 2
-   ...
-   
-   0,0       ← Entry
-   9,7       ← Exit
-   EESSNEES  ← Path
-                    │
-                    ▼
-8. Display maze visually
-   ┌───┬───┬───┐
-   │ E * * │   │
-   ├───┤ * ├───┤
-   │   │ * * X │
-   └───┴───┴───┘
-                    │
-                    ▼
-9. User interactions
-   - Press 'R' to regenerate
-   - Press 'P' to show/hide path
-   - Press 'C' to change colors
-```
-
-### Example Configuration File:
+### Running the program directly
 
 ```bash
-# Maze Configuration File
-# Lines starting with # are comments
-
-WIDTH=20          # Maze width in cells
-HEIGHT=15         # Maze height in cells
-ENTRY=0,0         # Entry coordinates (x,y)
-EXIT=19,14        # Exit coordinates (x,y)
-OUTPUT_FILE=maze.txt  # Where to save the maze
-PERFECT=True      # True = only one path, False = multiple paths
+python3 a_maze_ing.py config.txt
 ```
 
-### Example Output File:
+### Installing the reusable package
+
+You can install the maze generator module using pip:
+
+```bash
+pip install mazegen_a_maze_ing-1.0.0-py3-none-any.whl
+```
+
+Or rebuild it from source:
+
+```bash
+# Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install build tools
+pip install build
+
+# Build the package
+python -m build
+
+# Install the built package
+pip install dist/mazegen_a_maze_ing-1.0.0-py3-none-any.whl
+
+# Run the program
+python3 a_maze_ing.py config.txt
+```
+
+### Interactive Controls
+
+| Key | Action |
+|-----|--------|
+| `R` | Regenerate a new maze |
+| `S` | Show / Hide the shortest path |
+| `C` | Change wall colors |
+| `P` | Toggle player mode |
+| `Q` | Quit the program |
+
+---
+
+## Configuration File
+
+The configuration file uses a simple `KEY=VALUE` format. Lines starting with `#` are treated as comments.
+
+### Example
 
 ```
-F8C4A2B3D5E6A1C3
-3A5B9C7D2E4F6A8B
-C4D5E6F7A8B9C1D2
-...
-[empty line]
-0,0
-19,14
-EESSEENNEESSEENN
+WIDTH=19
+HEIGHT=15
+ENTRY=1,1
+EXIT=4,4
+OUTPUT_FILE=maze.txt
+PERFECT=true
+SEED=None
+```
+
+### Keys
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `WIDTH` | int | Width of the maze (number of columns) |
+| `HEIGHT` | int | Height of the maze (number of rows) |
+| `ENTRY` | int tuple | Entry point of the maze, format: `row,col` |
+| `EXIT` | int tuple | Exit point of the maze, format: `row,col` |
+| `OUTPUT_FILE` | string | Path to the output file where the maze is saved |
+| `PERFECT` | bool | If `true`, generates a perfect maze (exactly one path between any two cells) |
+| `SEED` | int or None | Seed for random generation. Use `None` for a random maze each time |
+
+### Rules
+
+- Comment lines start with `#`
+- Each line follows the `KEY=VALUE` format
+- `PERFECT` accepts `true` or `false`
+- `ENTRY` and `EXIT` must be valid coordinates within the maze bounds
+- `SEED` must be an integer or something except `None`
+
+---
+
+## Maze Generation Algorithm
+
+### Generation — Depth-First Search (DFS)
+
+The maze is generated using the **Recursive Backtracker** algorithm, which is based on DFS. Starting from the entry cell, the algorithm visits neighbors randomly, carves a path through unvisited cells, and backtracks when it reaches a dead end. This produces mazes with long, winding corridors and a natural feel.
+
+**Why DFS?**
+- Simple to implement and understand
+- Produces visually interesting and complex mazes
+- Guarantees a perfect maze (every cell reachable, exactly one path between any two cells) when `PERFECT=true`
+- Easy to animate step by step
+
+### Pathfinding — Breadth-First Search (BFS)
+
+The shortest path from entry to exit is found using **BFS**. Starting from the entry point, BFS explores all neighboring cells level by level, guaranteeing that the first time it reaches the exit, it has found the shortest path.
+
+---
+
+## Reusable Module
+
+The core logic of the project is packaged as a reusable Python module called `mazegen`. It contains three submodules:
+
+| Module | Description |
+|--------|-------------|
+| `mazegen.maze_generation` | DFS maze generation and BFS pathfinding logic |
+| `mazegen.maze_drawing` | Visual rendering using `curses`, animations, banner |
+| `mazegen.banner` | a banner to use in other projects|
+| `mazegen.parsing` | Configuration file parsing and validation |
+
+### How to use it
+
+```bash
+make run
 ```
 
 ---
 
-## 👥 Task Division (2 People)
+## Bonuses
 
-### Overview:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      PROJECT STRUCTURE                       │
-├──────────────────────────┬──────────────────────────────────┤
-│      PERSON 1            │           PERSON 2               │
-│  Maze Generation Core    │    I/O & Visualization           │
-├──────────────────────────┼──────────────────────────────────┤
-│ • Algorithm Research     │ • Config File Parser             │
-│ • MazeGenerator Class    │ • Input Validation               │
-│ • Wall Logic             │ • Hex Encoding                   │
-│ • Constraints            │ • Output File Writer             │
-│ • "42" Pattern           │ • BFS Pathfinding                │
-│ • Perfect Maze Logic     │ • Visual Display                 │
-│ • Testing                │ • User Interactions              │
-│                          │ • Python Package                 │
-└──────────────────────────┴──────────────────────────────────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │ Integration   │
-                    │ (Both Work    │
-                    │  Together)    │
-                    └───────────────┘
-```
-
-### Why This Division is Fair:
-
-**Person 1 (Algorithm):**
-- Fewer tasks but more complex
-- Requires deep algorithmic thinking
-- Core "brain" of the project
-- ~40% of total work
-
-**Person 2 (I/O & Display):**
-- More tasks but smaller pieces
-- More variety in types of work
-- Deals with user-facing features
-- ~45% of total work
-
-**Both Together:**
-- ~15% shared integration work
+- **Maze generation animation** — Watch the maze being built step by step
+- **Pathfinding animation** — Watch BFS explore the maze to find the shortest path
+- **Banner** — A visual banner displayed at the start of the program
+- **Player mode** — Navigate through the maze manually using keyboard controls
 
 ---
+
+## Team and Project Management
+
+### Roles
+
+| Member | Responsibilities |
+|--------|-----------------|
+| `sjdia` | Maze generation (DFS), pathfinding (BFS), parsing, banner, packaging |
+| `ymouafak` | Maze drawing, visual representation, curses interface |
+
+
+### Tools used
+
+- **VSCode** — Code editor
+- **Git / GitHub** — Version control and collaboration
+- **Python `curses`** — Terminal-based graphical interface
+- **`setuptools` + `build` + `venv`** — Python packaging
+
+---
+
+## Resources
+
+- [Real Python](https://realpython.com) — Python tutorials and guides
+- [GeeksForGeeks](https://www.geeksforgeeks.org) — Algorithm explanations (DFS, BFS)
+- [Python `curses` documentation](https://docs.python.org/3/library/curses.html) — Official curses library docs
+- [Python Packaging User Guide](https://packaging.python.org) — Guide on building and distributing Python packages
+- [Maze Generation Algorithms — Wikipedia](https://en.wikipedia.org/wiki/Maze_generation_algorithm) — Overview of maze generation techniques
+
+### AI Usage
+
+AI (Claude) was used during this project for the following tasks:
+- Explaining the **DFS** and **BFS** algorithms and how to apply them to maze generation and pathfinding
+- Explaining new Python concepts encountered during development
+- Explaining how to work with the **`curses`** library and how to draw in the terminal using it
+- Helping understand and set up the **Python packaging** process (`pyproject.toml`, build tools, relative imports)

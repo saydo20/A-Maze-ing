@@ -147,7 +147,7 @@ if __name__ == "__main__":
         exit(0)
 
 
-def main(stdscr, arr, config, visited):
+def main(stdscr: Any, arr: list, config: dict, visited: list) -> None:
     """Run the main interactive maze application using curses.
 
     Initializes the curses display, runs the maze generation animation,
@@ -167,12 +167,12 @@ def main(stdscr, arr, config, visited):
     stdscr.clear()
     curses.curs_set(0)
 
-    draw = Draw(config, arr, stdscr, path=None)
+    draw = Draw(config, arr, stdscr, "")
     draw.print_grid()
 
     animation(stdscr, draw, arr, config, visited)
 
-    draw.path = finalize_and_save(arr, config)
+    draw.path = finalize_and_save(arr, config) or "NO_PATH"
 
     draw.mark_entery_exit()
     draw.iterate()
@@ -192,13 +192,13 @@ def main(stdscr, arr, config, visited):
             stdscr.clear()
             arr, config, visited = prepare()
             prev_color = draw.color
-            draw = Draw(config, arr, stdscr, path=None)
+            draw = Draw(config, arr, stdscr, "")
             draw.color = prev_color
             draw.print_grid()
 
             animation(stdscr, draw, arr, config, visited)
 
-            draw.path = finalize_and_save(arr, config)
+            draw.path = finalize_and_save(arr, config) or "NO_PATH"
             draw.mark_entery_exit()
             draw.iterate()
         if char in ("c", "C"):

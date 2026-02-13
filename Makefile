@@ -21,13 +21,11 @@ clean:
 	@echo "Cleaning temporary files..."
 	rm -rf dist
 	rm -rf build
+	rm -rf __pycache__ .mypy_cache .pytest_cache
+	rm -rf */__pycache__
+	rm -f *.pyc
 
 lint:
 	@echo "Running linting..."
-# 	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
-
-lint-strict:
-	@echo "Running strict linting..."
-	flake8 .
-	mypy . --strict
+	python3 -m flake8 .
+	python3 -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

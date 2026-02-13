@@ -3,6 +3,15 @@ from typing import Any
 
 
 def main(stdscr: Any) -> None:
+    """Display the animated banner and interactive main menu.
+
+    Renders the A-Maze-ing ASCII art banner, author information, and
+    a navigable menu using curses. The user can select to start the
+    program or quit using keyboard arrow keys and Enter.
+
+    Args:
+        stdscr (Any): The main curses window provided by curses.wrapper.
+    """
     curses.curs_set(0)
     stdscr.keypad(True)
 
@@ -88,5 +97,11 @@ def main(stdscr: Any) -> None:
             break
 
 
-def run():
+def run() -> None:
+    """Launch the banner and main menu using curses.
+
+    Wraps the main function with curses.wrapper to initialize the
+    curses environment, handle cleanup automatically, and restore
+    the terminal to its original state on exit.
+    """
     curses.wrapper(main)

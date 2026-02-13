@@ -7,10 +7,24 @@ from mazegen import maze_generation
 from mazegen import banner
 
 
-def prepare():
+def prepare() -> tuple[list, dict, list]:
     """
-    Phase 1: parse args + build initial grid + apply pattern.
-    DO NOT generate the maze here (we want to animate that in curses).
+    Parse arguments, build the initial grid, and apply the 42 pattern.
+
+    Reads the configuration file path from command line arguments,
+    parses it, creates the maze grid, applies the 42 pattern, and
+    initializes the visited array
+
+    Returns:
+        tuple: A tuple containing:
+            - arr (list): The 2D grid of maze cells with the 42 pattern applied.
+            - config (dict): The parsed configuration dictionary containing
+              keys like WIDTH, HEIGHT, ENTRY, EXIT, SEED, PERFECT, OUTPUT_FILE.
+            - visited (list): A 2D boolean array tracking visited cells
+              during maze generation.
+
+    Raises:
+        ValueError: If the number of command line arguments is not exactly 2.
     """
     arg = sys.argv
     if len(arg) != 2:
@@ -34,11 +48,23 @@ def prepare():
     return arr, config, visited
 
 
-def finalize_and_save(arr, config):
+def finalize_and_save(arr: list, config: dict) -> str | None:
+    """Finalize the maze after generation and save it to the output file.
+
+    Optionally adds loops to make the maze imperfect based on the config,
+    computes the shortest path from entry to exit using BFS, and writes
+    the maze grid, entry, exit, and path to the output file.
+
+    Args:
+        arr (list): The 2D grid of fully generated maze cells.
+        config (dict): The parsed configuration dictionary containing
+            keys like WIDTH, HEIGHT, ENTRY, EXIT, PERFECT, OUTPUT_FILE.
+
+    Returns:
+        str: The shortest path from entry to exit as a string of directions
+            using 'N', 'E', 'S', 'W', or 'NO_PATH' if no path exists.
     """
-    Phase 2: after generation is done (animated), optionally add loops,
-    compute path, save output file.
-    """
+
     width = config["WIDTH"]
     height = config["HEIGHT"]
 
@@ -68,10 +94,26 @@ def finalize_and_save(arr, config):
     return path
 
 
-def animation(stdscr, draw, arr, config, visited):
+def animation(stdscr: object, draw: object, arr: list, config: dict, visited: list) -> None:
+    """Animate the DFS maze generation step by step in the terminal.
+
+    Runs the DFS maze generator as a generator function, redrawing only
+    the cells that change at each step to create a smooth animation effect.
+    A short delay is applied between each step for visual clarity.
+
+    Args:
+        stdscr (curses.window): The main curses window used for rendering.
+        draw (Draw): The Draw instance responsible for rendering maze cells.
+        arr (list): The 2D grid of maze cells being generated.
+        config (dict): The parsed configuration dictionary containing
+            keys like WIDTH, HEIGHT, and ENTRY.
+        visited (list): A 2D boolean array tracking visited cells
+            during maze generation.
+
+    Raises:
+        SystemError: If the terminal screen is too small to display the maze.
     """
-    Runs the DFS generator and redraws only the changed cells per step.
-    """
+
     height, width = stdscr.getmaxyx()
     height1 = config["HEIGHT"] * 3 + 8
     width1 = config["WIDTH"] * 4
@@ -102,38 +144,46 @@ if __name__ == "__main__":
 
 
 def main(stdscr, arr, config, visited):
+    """Run the main interactive maze application using curses.
+
+    Initializes the curses display, runs the maze generation animation,
+    finalizes and saves the maze, then enters an interactive loop
+    responding to user keyboard input.
+
+    Args:
+        stdscr (curses.window): The main curses window provided by
+            curses.wrapper.
+        arr (list): The 2D grid of maze cells with the 42 pattern applied.
+        config (dict): The parsed configuration dictionary containing
+            keys like WIDTH, HEIGHT, ENTRY, EXIT, PERFECT, OUTPUT_FILE.
+        visited (list): A 2D boolean array tracking visited cells
+            during maze generation.
+    """
+
     stdscr.clear()
     curses.curs_set(0)
 
-    # initial build (no maze generation yet)
-
-    # draw empty frame/grid
     draw = Draw(config, arr, stdscr, path=None)
     draw.print_grid()
 
     animation(stdscr, draw, arr, config, visited)
 
-    # after carving, compute path + save file
     draw.path = finalize_and_save(arr, config)
 
-    # final touches
     draw.mark_entery_exit()
     draw.iterate()
 
     while True:
         draw.display_menu()
         char = stdscr.getkey()
-
         if char in ("q", "Q"):
             break
-
         if char in ("s", "S"):
             draw.show_path = not draw.show_path
             if draw.show_path:
                 draw.print_path()
             else:
                 draw.clear_path()
-
         if char in ("r", "R"):
             stdscr.clear()
             arr, config, visited = prepare()

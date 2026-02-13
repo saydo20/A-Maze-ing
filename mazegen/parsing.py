@@ -1,12 +1,22 @@
-"""
-create functions:
-the make dict function that create a dict that contain:
-    all the keys,
-    all the values
-"""
-
-
 def make_dic(file: str) -> dict:
+    """Read a configuration file and parse it into a raw dictionary.
+
+    Reads the file line by line, ignoring empty lines and comments.
+    Each valid line must follow the 'KEY=VALUE' format. Duplicate
+    keys are not allowed.
+
+    Args:
+        file (str): Path to the configuration file to read.
+
+    Returns:
+        dict: A dictionary mapping uppercase key strings to their
+            raw string values as read from the file.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IndexError: If a line does not contain exactly one '=' sign.
+        ValueError: If a duplicate key is found in the file.
+    """
     config_dict = {}
     with open(file, "r") as f:
         lines = f.read().split("\n")
@@ -28,12 +38,45 @@ def make_dic(file: str) -> dict:
     return config_dict
 
 
-"""
-the second function that take that dict and check if it's valid or not
-"""
-
-
 def convert_dict(file: str) -> dict:
+    """Parse and validate a configuration file into a typed dictionary.
+
+    Calls make_dic to read the raw key-value pairs, then validates
+    and converts each value to its appropriate Python type. Raises
+    descriptive errors for any invalid or missing values.
+
+    Expected keys and their types after conversion:
+        - WIDTH (int): Must be a positive integer.
+        - HEIGHT (int): Must be a positive integer.
+        - ENTRY (list): Two non-negative integers [col, row] within
+          the maze bounds.
+        - EXIT (list): Two non-negative integers [col, row] within
+          the maze bounds.
+        - PERFECT (bool): Must be 'true' or 'false'.
+        - OUTPUT_FILE (str): Must end with '.txt' and differ from
+          the config file path.
+        - SEED (str): Must not be empty. Use 'None' for a random seed.
+
+    Args:
+        file (str): Path to the configuration file to parse.
+
+    Returns:
+        dict: A fully validated dictionary with all values converted
+            to their appropriate Python types.
+
+    Raises:
+        ValueError: If WIDTH or HEIGHT is negative.
+        ValueError: If ENTRY or EXIT does not have exactly two coordinates.
+        ValueError: If ENTRY or EXIT coordinates are negative or outside
+            the maze bounds.
+        ValueError: If ENTRY and EXIT are at the same position.
+        ValueError: If PERFECT is not 'true' or 'false'.
+        ValueError: If OUTPUT_FILE is empty, does not end with '.txt',
+            or is the same as the config file.
+        ValueError: If SEED is empty.
+        NotImplementedError: If an unrecognized key is found in the file.
+    """
+ 
     dict = make_dic(file)
     for key in dict:
         if key == "WIDTH" or key == "HEIGHT":

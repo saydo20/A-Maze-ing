@@ -324,7 +324,8 @@ class Draw:
         Print walls for a specific cell.
 
         Draws the top, left walls based on the cell's
-        wall configuration. the other bottom, right walls bottom and right borders,
+        wall configuration. the other bottom,
+        right walls bottom and right borders,
         are handeled when reaching the edge
 
         Args:

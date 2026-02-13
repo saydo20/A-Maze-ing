@@ -6,6 +6,7 @@ from mazegen import parsing
 from mazegen import maze_generation
 from mazegen import banner
 
+
 def prepare():
     """
     Phase 1: parse args + build initial grid + apply pattern.
@@ -87,23 +88,24 @@ def animation(stdscr, draw, arr, config, visited):
         stdscr.refresh()
         curses.napms(10)
 
+
 if __name__ == "__main__":
-        try:
-            arr, config, visited = prepare()
-            banner.run()
-        except Exception as e:
-            print(f"Unexpected error: {e} :( ")
-            exit(0)
-        except KeyboardInterrupt as e:
-            print(f"See you Later {e}")
-            exit(0)
+    try:
+        arr, config, visited = prepare()
+        banner.run()
+    except Exception as e:
+        print(f"Unexpected error: {e} :( ")
+        exit(0)
+    except KeyboardInterrupt as e:
+        print(f"See you Later {e}")
+        exit(0)
+
 
 def main(stdscr, arr, config, visited):
     stdscr.clear()
     curses.curs_set(0)
 
     # initial build (no maze generation yet)
-    
 
     # draw empty frame/grid
     draw = Draw(config, arr, stdscr, path=None)

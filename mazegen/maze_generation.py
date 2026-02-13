@@ -1,6 +1,7 @@
 import random
 from collections import deque
 from typing import Optional
+from typing import Generator
 
 
 class Cell:
@@ -60,7 +61,10 @@ class MazeGenerator:
                 cls.remove_walls(arr, row, col, row + 1, col)
 
     @classmethod
-    def pattern(cls, grid: list, height: int, width: int, entry_row: int, entry_col: int, exit_row: int, exit_col: int) -> None:
+    def pattern(
+        cls, grid: list, height: int, width: int, entry_row: int,
+        entry_col: int, exit_row: int, exit_col: int
+               ) -> None:
         pattern_for = [
             (0, 0), (1, 0), (2, 0), (2, 1), (2, 2),
             (3, 2), (4, 2)
@@ -72,9 +76,11 @@ class MazeGenerator:
         pattern_start_row = height // 2 - 2
         pattern_start_col = width // 2 - 3
         if pattern_start_row < 0 or pattern_start_row + 6 > height:
-            raise ValueError(f"Grid height ({height}) too small for pattern (needs at least 8)")
+            raise ValueError(f"Grid height ({height})"
+                             " too small for pattern (needs at least 7)")
         if pattern_start_col < 0 or pattern_start_col + 8 > width:
-            raise ValueError(f"Grid width ({width}) too small for pattern (needs at least 8)")
+            raise ValueError(f"Grid width ({width})"
+                             " too small for pattern (needs at least 9)")
         for row_offset, col_offset in pattern_for:
             actual_row = pattern_start_row + row_offset
             actual_col = pattern_start_col + col_offset
@@ -95,7 +101,9 @@ class MazeGenerator:
             grid[actual_row][actual_col].in_pattern = True
 
     @classmethod
-    def remove_walls(cls, arr: list, row1: int, col1: int, row2: int, col2: int) -> None:
+    def remove_walls(
+        cls, arr: list, row1: int, col1: int, row2: int, col2: int
+                    ) -> None:
         cel1 = arr[row1][col1].value
         cel2 = arr[row2][col2].value
         cel1 = int(cel1, 16)
@@ -116,7 +124,9 @@ class MazeGenerator:
         arr[row2][col2].value = cls.hexa[cel2]
 
     @classmethod
-    def get_neighbors(cls, row: int, col: int, height: int, width: int) -> list:
+    def get_neighbors(
+        cls, row: int, col: int, height: int, width: int
+                     ) -> list:
         neibors = []
         if row - 1 >= 0:
             neibors.append([row - 1, col])
@@ -144,8 +154,9 @@ class MazeGenerator:
 
     @classmethod
     def generate_maze(
-        cls, entry_row: int, entry_col: int, grid: list, visited: list, width: int, height: int
-    ): #return value
+        cls, entry_row: int, entry_col: int, grid: list,
+        visited: list, width: int, height: int
+                     ) -> Generator[tuple[int, int], None, None]:
         stack = []
         stack.append((entry_row, entry_col))
         visited[entry_row][entry_col] = True
@@ -172,7 +183,9 @@ class MazeGenerator:
             yield (current_row, current_col)
 
     @classmethod
-    def can_move(cls, grid: list, row1: int, col1: int, row2: int, col2: int) -> bool:
+    def can_move(
+        cls, grid: list, row1: int, col1: int, row2: int, col2: int
+                ) -> bool:
         cell = int(grid[row1][col1].value, 16)
         if row2 == row1 - 1:
             return (cell & 1) == 0
@@ -202,7 +215,9 @@ class MazeGenerator:
         return directions
 
     @classmethod
-    def bfs_pathfind(cls, grid: list, entry: list, exit: list, width: int, height: int) -> list:
+    def bfs_pathfind(
+        cls, grid: list, entry: list, exit: list, width: int, height: int
+                    ) -> list:
         entry_col, entry_row = entry
         exit_col, exit_row = exit
         queue: deque[tuple[int, int]] = deque()

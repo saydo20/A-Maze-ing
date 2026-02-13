@@ -51,17 +51,19 @@ def convert_dict(file: str) -> dict:
             if dict[key][0] < 0:
                 raise ValueError("the entry and the exit cannot be nugative")
             if dict[key][0] >= dict["WIDTH"]:
-                raise ValueError("the entry and the exit has to be in the maze")
+                raise ValueError(
+                    "the entry and the exit has to be in the maze")
             if dict[key][1] < 0:
                 raise ValueError("the entry and the exit cannot be nugative")
             if dict[key][1] >= dict["HEIGHT"]:
-                raise ValueError("the entry and the exit has to be in the maze")
+                raise ValueError(
+                    "the entry and the exit has to be in the maze")
 
         elif key == "PERFECT":
             if dict[key].lower() != "true":
                 if dict[key].lower() != "false":
                     raise ValueError('the PERFECT must be'
-                                        ' "true" or "false"')
+                                     ' "true" or "false"')
             if dict[key].lower() == "true":
                 dict[key] = True
             else:
@@ -79,9 +81,10 @@ def convert_dict(file: str) -> dict:
                 raise ValueError("the SEED cannot be empty")
         else:
             raise (NotImplementedError("the file must"
-                                        " contain only:"
-                                        "\nWIDTH\nHEIGHT\nENTRY\nEXIT\n"
-                                        "OUTPUT_FILE\nPERFEC\nSEED"))
+                                       " contain only:"
+                                       "\nWIDTH\nHEIGHT\nENTRY\nEXIT\n"
+                                       "OUTPUT_FILE\nPERFEC\nSEED"))
     if dict["ENTRY"] == dict["EXIT"]:
-                raise ValueError("the entry and the exit cannot been in the same position")
+        raise ValueError(
+            "the entry and the exit cannot been in the same position")
     return dict

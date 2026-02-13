@@ -4,6 +4,7 @@ import curses
 from mazegen.Maze_drawing import Draw
 from mazegen import parsing
 from mazegen import maze_generation
+from mazegen import banner
 
 def prepare():
     """
@@ -71,10 +72,10 @@ def animation(stdscr, draw, arr, config, visited):
     Runs the DFS generator and redraws only the changed cells per step.
     """
     height, width = stdscr.getmaxyx()
-    height1 = config["HEIGHT"] * 3 + 5
+    height1 = config["HEIGHT"] * 3 + 8
     width1 = config["WIDTH"] * 4
     if height1 > height or width1 > width:
-        raise SystemError("Screen too small :( ")
+        raise SystemError("Screen too small ")
     height = config["HEIGHT"]
     width = config["WIDTH"]
     entry_col, entry_row = config["ENTRY"]
@@ -88,8 +89,7 @@ def animation(stdscr, draw, arr, config, visited):
 
 if __name__ == "__main__":
         try:
-            from mazegen import banner
-            prepare()
+            arr, config, visited = prepare()
             banner.run()
         except Exception as e:
             print(f"Unexpected error: {e} :( ")
@@ -98,12 +98,12 @@ if __name__ == "__main__":
             print(f"See you Later {e}")
             exit(0)
 
-def main(stdscr):
+def main(stdscr, arr, config, visited):
     stdscr.clear()
     curses.curs_set(0)
 
     # initial build (no maze generation yet)
-    arr, config, visited = prepare()
+    
 
     # draw empty frame/grid
     draw = Draw(config, arr, stdscr, path=None)
@@ -161,10 +161,10 @@ def main(stdscr):
 
 
 try:
-    curses.wrapper(main)
+    curses.wrapper(main, arr, config, visited)
 except KeyboardInterrupt as e:
     print(f"See you Later {e}")
     exit(0)
 except Exception as e:
-    print(f"Unexpected error: {e} :(")
+    print(f"Unexpected error: {e} :( ")
     exit(0)

@@ -99,7 +99,7 @@ SEED=None
 | `EXIT` | int tuple | Exit point of the maze, format: `row,col` |
 | `OUTPUT_FILE` | string | Path to the output file where the maze is saved |
 | `PERFECT` | bool | If `true`, generates a perfect maze (exactly one path between any two cells) |
-| `SEED` | int or None | Seed for random generation. Use `None` for a random maze each time |
+| `SEED` | not None | Seed for random generation. Use `None` for a random maze each time |
 
 ### Rules
 

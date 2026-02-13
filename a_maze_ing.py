@@ -1,6 +1,5 @@
 import sys
 import random
-import requests
 import curses
 from typing import Any
 from mazegen.Maze_drawing import Draw

@@ -12,7 +12,7 @@ class Draw:
     """
 
     def __init__(self, infos: Dict[str, Any], arr: List[List[Any]],
-                 screen: Any, path: str) -> None:
+                 screen: Any, path: str = "") -> None:
         """
         Initialize the Draw class with maze information and screen.
 

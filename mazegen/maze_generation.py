@@ -377,7 +377,7 @@ class MazeGenerator:
     @classmethod
     def bfs_pathfind(
         cls, grid: list, entry: list, exit: list, width: int, height: int
-                    ) -> str | None:
+                    ) -> str:
         """Find the shortest path from entry to exit using BFS.
 
         Explores the maze level by level using a queue, respecting wall
@@ -432,4 +432,4 @@ class MazeGenerator:
             directions = cls.from_tuple_to_direction(path)
             return directions
         else:
-            return None
+            return "NO_PATH"

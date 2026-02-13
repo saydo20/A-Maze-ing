@@ -163,8 +163,8 @@ make run
 
 | Member | Responsibilities |
 |--------|-----------------|
-| `sjdia` | Maze generation (DFS), pathfinding (BFS), parsing, banner, packaging |
-| `ymouafak` | Maze drawing, visual representation, curses interface |
+| `sjdia` | Maze generation (DFS), pathfinding (BFS), parsing, packaging |
+| `ymouafak` | Maze drawing, visual representation, curses interface, banner, |
 
 
 ### Tools used

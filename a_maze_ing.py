@@ -1,5 +1,6 @@
 import sys
 import random
+import requests
 import curses
 from typing import Any
 from mazegen.Maze_drawing import Draw
@@ -51,7 +52,7 @@ def prepare() -> tuple[list, dict, list]:
     return arr, config, visited
 
 
-def finalize_and_save(arr: list, config: dict) -> str | None:
+def finalize_and_save(arr: list, config: dict) -> str:
     """Finalize the maze after generation and save it to the output file.
 
     Optionally adds loops to make the maze imperfect based on the config,
@@ -93,7 +94,7 @@ def finalize_and_save(arr: list, config: dict) -> str | None:
         f.write(",")
         f.write(str(exit[1]))
         f.write("\n")
-        f.write(path if path else "NO_PATH")
+        f.write(path)
     return path
 
 
@@ -167,12 +168,12 @@ def main(stdscr: Any, arr: list, config: dict, visited: list) -> None:
     stdscr.clear()
     curses.curs_set(0)
 
-    draw = Draw(config, arr, stdscr, "")
+    draw = Draw(config, arr, stdscr)
     draw.print_grid()
 
     animation(stdscr, draw, arr, config, visited)
 
-    draw.path = finalize_and_save(arr, config) or "NO_PATH"
+    draw.path = finalize_and_save(arr, config)
 
     draw.mark_entery_exit()
     draw.iterate()
@@ -192,13 +193,13 @@ def main(stdscr: Any, arr: list, config: dict, visited: list) -> None:
             stdscr.clear()
             arr, config, visited = prepare()
             prev_color = draw.color
-            draw = Draw(config, arr, stdscr, "")
+            draw = Draw(config, arr, stdscr)
             draw.color = prev_color
             draw.print_grid()
 
             animation(stdscr, draw, arr, config, visited)
 
-            draw.path = finalize_and_save(arr, config) or "NO_PATH"
+            draw.path = finalize_and_save(arr, config)
             draw.mark_entery_exit()
             draw.iterate()
         if char in ("c", "C"):

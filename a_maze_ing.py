@@ -1,6 +1,7 @@
 import sys
 import random
 import curses
+from typing import Any
 from mazegen.Maze_drawing import Draw
 from mazegen import parsing
 from mazegen import maze_generation
@@ -96,7 +97,7 @@ def finalize_and_save(arr: list, config: dict) -> str | None:
     return path
 
 
-def animation(stdscr: object, draw: object, arr: list, config: dict,
+def animation(stdscr: Any, draw: Draw, arr: list, config: dict,
               visited: list) -> None:
     """Animate the DFS maze generation step by step in the terminal.
 
